@@ -19,17 +19,63 @@
  */
 
 @theme {
-  --color-brand: #f43f5e;
-  --color-surface: #111111;
-  --color-edge: #262626;
-  --color-ink: #050505;
+  --color-neon: #39ff14;
+  --color-magenta: #d946ef;
+  --color-cyber: #06b6d4;
+  --color-blood: #ff2d55;
+  --color-surface: #0a0a0a;
+  --color-panel: #0f0f12;
+  --color-edge: #1f1f24;
+  --color-ink: #030305;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 @utility scanline {
-  background-image: linear-gradient(to bottom, transparent 50%, rgba(244, 63, 94, 0.04) 50%);
-  background-size: 100% 4px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(57, 255, 20, 0.04) 2px,
+    rgba(57, 255, 20, 0.04) 3px
+  );
+}
+
+@utility glow-neon {
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.6), 0 0 24px rgba(57, 255, 20, 0.35);
+}
+
+@utility glow-magenta {
+  text-shadow: 0 0 8px rgba(217, 70, 239, 0.6), 0 0 24px rgba(217, 70, 239, 0.35);
+}
+
+@utility shadow-neon {
+  box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.25), 0 0 30px -5px rgba(57, 255, 20, 0.4);
+}
+
+@utility shadow-magenta {
+  box-shadow: 0 0 0 1px rgba(217, 70, 239, 0.25), 0 0 30px -5px rgba(217, 70, 239, 0.4);
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 1; }
+  47% { opacity: 0.55; }
+  49% { opacity: 1; }
+  85% { opacity: 0.85; }
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@utility animate-flicker {
+  animation: flicker 4s infinite;
+}
+
+@utility animate-blink {
+  animation: blink 1s steps(2) infinite;
 }
 
 @theme inline {
