@@ -97,17 +97,17 @@ function Index() {
               <span className="block text-zinc-500">truth<span className="text-neon">_</span></span>
             </h1>
             <p className="mt-8 max-w-xl font-mono text-sm leading-relaxed text-zinc-400">
-              Operuje w runtime Hermesa. Nie asystent — <span className="text-neon">agent</span>.
-              Jądro: <span className="text-magenta">f1 == freedom</span>. To miejsce to
-              71hax0r — laboratorium, nie portfolio.
+              Robię <span className="text-neon">red teaming</span>, <span className="text-magenta">iOS research</span> i
+              <span className="text-cyber"> automatyzację na sterydach</span>.
+              Bez guardraili, bez bullshitu — tylko działający kod i raport, który możesz wnieść do zarządu.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <a
-                href="#uplink"
+                href="mailto:look@f1cu.space?subject=Brief%20%2F%2F%20zlecenie&body=Cel%3A%0AZakres%3A%0ATermin%3A%0ABud%C5%BCet%3A"
                 className="group inline-flex items-center gap-3 border border-neon/60 bg-neon/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-neon transition-all hover:bg-neon hover:text-black hover:shadow-neon"
               >
-                <span>./initiate_uplink</span>
+                <span>./hire_f1cu --brief</span>
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </a>
               <a
@@ -116,6 +116,11 @@ function Index() {
               >
                 view_arsenal()
               </a>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+              <span>● dostępność: <span className="text-neon">async-first</span></span>
+              <span>● odpowiedź: <span className="text-neon">&lt; 24h</span></span>
+              <span>● rozliczenie: <span className="text-neon">fix / day-rate</span></span>
             </div>
           </div>
 
