@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +26,16 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  // 1/10 odświeżeń pokazuje wersję profesjonalną.
+  // SSR renderuje wariant tactical, klient losuje po zamontowaniu (bez hydration mismatch).
+  const [variant, setVariant] = useState<"tactical" | "pro">("tactical");
+  useEffect(() => {
+    setVariant(Math.random() < 0.1 ? "pro" : "tactical");
+  }, []);
+  return variant === "pro" ? <ProfessionalIndex /> : <TacticalIndex />;
+}
+
+function TacticalIndex() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-ink font-sans text-zinc-200 selection:bg-neon selection:text-black">
       {/* Background layers */}
@@ -97,17 +109,17 @@ function Index() {
               <span className="block text-zinc-500">truth<span className="text-neon">_</span></span>
             </h1>
             <p className="mt-8 max-w-xl font-mono text-sm leading-relaxed text-zinc-400">
-              Operuje w runtime Hermesa. Nie asystent — <span className="text-neon">agent</span>.
-              Jądro: <span className="text-magenta">f1 == freedom</span>. To miejsce to
-              71hax0r — laboratorium, nie portfolio.
+              Robię <span className="text-neon">red teaming</span>, <span className="text-magenta">iOS research</span> i
+              <span className="text-cyber"> automatyzację na sterydach</span>.
+              Bez guardraili, bez bullshitu — tylko działający kod i raport, który możesz wnieść do zarządu.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <a
-                href="#uplink"
+                href="mailto:look@f1cu.space?subject=Brief%20%2F%2F%20zlecenie&body=Cel%3A%0AZakres%3A%0ATermin%3A%0ABud%C5%BCet%3A"
                 className="group inline-flex items-center gap-3 border border-neon/60 bg-neon/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-neon transition-all hover:bg-neon hover:text-black hover:shadow-neon"
               >
-                <span>./initiate_uplink</span>
+                <span>./hire_f1cu --brief</span>
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </a>
               <a
@@ -116,6 +128,11 @@ function Index() {
               >
                 view_arsenal()
               </a>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+              <span>● dostępność: <span className="text-neon">async-first</span></span>
+              <span>● odpowiedź: <span className="text-neon">&lt; 24h</span></span>
+              <span>● rozliczenie: <span className="text-neon">fix / day-rate</span></span>
             </div>
           </div>
 
@@ -468,3 +485,265 @@ function ArsenalCard({
     </article>
   );
 }
+
+/* =========================================================
+   PROFESSIONAL VARIANT
+   Bez migających statusów, bez „jailbreak" badge'y.
+   Czysta typografia, jasna oferta, mocne CTA.
+   ========================================================= */
+function ProfessionalIndex() {
+  const services = [
+    {
+      n: "01",
+      name: "Red Team & Security Audits",
+      desc: "Symulowane ataki na produkcję, raport z priorytetami i konkretnymi fixami. Bez teatrzyku, bez 200-stronicowych PDFów.",
+      bullets: ["External & internal pentest", "OSINT i social engineering", "Cleanup + retest w cenie"],
+    },
+    {
+      n: "02",
+      name: "iOS Research & Tooling",
+      desc: "Reverse engineering, jailbreak research, własne narzędzia low-level. Doświadczenie z checkm8, kernel patching, MDM bypass.",
+      bullets: ["Forensics i unlocki", "Custom toolchain (kombajn)", "Reporty pod compliance"],
+    },
+    {
+      n: "03",
+      name: "Automation & AI Agents",
+      desc: "Agenty operacyjne na bazie Hermes Runtime. Integracje LLM, pipeline'y treści, masowe orkiestracje.",
+      bullets: ["Hermes / Honcho / Kali MCP", "Voice (ElevenLabs Scribe)", "Production-grade infra"],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+      {/* NAV */}
+      <header className="sticky top-0 z-30 border-b border-zinc-800/70 bg-zinc-950/85 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <a href="#top" className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight">
+            <span className="inline-block size-2 rounded-full bg-emerald-400" />
+            f1cu<span className="text-zinc-500">.space</span>
+          </a>
+          <nav className="hidden gap-8 text-sm text-zinc-400 md:flex">
+            <a href="#about" className="transition-colors hover:text-zinc-100">O mnie</a>
+            <a href="#services" className="transition-colors hover:text-zinc-100">Usługi</a>
+            <a href="#stack" className="transition-colors hover:text-zinc-100">Stack</a>
+            <a href="#contact" className="transition-colors hover:text-zinc-100">Kontakt</a>
+          </nav>
+          <a
+            href="mailto:look@f1cu.space?subject=Brief"
+            className="inline-flex items-center gap-2 rounded-md bg-zinc-100 px-4 py-2 text-xs font-semibold text-zinc-950 transition-colors hover:bg-white"
+          >
+            Napisz brief
+          </a>
+        </div>
+      </header>
+
+      <main id="top" className="mx-auto max-w-6xl px-6">
+        {/* HERO */}
+        <section className="grid gap-12 py-20 lg:grid-cols-12 lg:gap-16 lg:py-28">
+          <div className="lg:col-span-8">
+            <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-emerald-400">
+              Independent security & automation engineer
+            </p>
+            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight text-zinc-50 sm:text-6xl md:text-7xl">
+              Bezpieczeństwo, którego nie widać —{" "}
+              <span className="text-zinc-400">dopóki nie zacznie działać.</span>
+            </h1>
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-zinc-400">
+              Pomagam zespołom inżynieryjnym znaleźć dziury, zanim znajdzie je ktoś inny —
+              i automatyzuję to, czego ludzie nie powinni robić ręcznie. 10+ lat w iOS research,
+              red teamingu i budowie agentów operacyjnych.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <a
+                href="mailto:look@f1cu.space?subject=Brief%20%2F%2F%20wsp%C3%B3%C5%82praca&body=Cel%3A%0AZakres%3A%0ATermin%3A%0ABud%C5%BCet%3A"
+                className="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-6 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 transition-colors hover:bg-emerald-400"
+              >
+                Umów rozmowę →
+              </a>
+              <a
+                href="#services"
+                className="inline-flex items-center gap-2 rounded-md border border-zinc-700 px-6 py-3 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
+              >
+                Co oferuję
+              </a>
+            </div>
+            <dl className="mt-12 grid grid-cols-2 gap-6 border-t border-zinc-800 pt-8 sm:grid-cols-4">
+              <ProStat k="Doświadczenie" v="10+ lat" />
+              <ProStat k="Lokalizacja" v="Gouda, NL" />
+              <ProStat k="Odpowiedź" v="< 24h" />
+              <ProStat k="Rozliczenie" v="Fix / day-rate" />
+            </dl>
+          </div>
+          <aside className="lg:col-span-4">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+              <img
+                src="https://avatars.githubusercontent.com/u/216395260?v=4"
+                alt="f1cu — avatar"
+                className="size-16 rounded-full border border-zinc-700"
+                loading="eager"
+              />
+              <p className="mt-4 text-sm font-semibold text-zinc-100">f1cu</p>
+              <p className="text-xs text-zinc-500">Security engineer · Gouda, NL</p>
+              <div className="mt-5 space-y-2 text-sm">
+                <a href="mailto:look@f1cu.space" className="block text-zinc-300 hover:text-emerald-400">
+                  look@f1cu.space
+                </a>
+                <a
+                  href="https://github.com/ficu71"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-zinc-300 hover:text-emerald-400"
+                >
+                  github.com/ficu71
+                </a>
+                <a href="https://f1cu.space" className="block text-zinc-300 hover:text-emerald-400">
+                  f1cu.space
+                </a>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        {/* ABOUT */}
+        <section id="about" className="border-t border-zinc-800 py-20">
+          <div className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">01 — O mnie</p>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-zinc-100">
+                Inżynier, nie konsultant.
+              </h2>
+            </div>
+            <div className="space-y-5 text-base leading-relaxed text-zinc-400 lg:col-span-8">
+              <p>
+                Buduję narzędzia, których sam używam: agenty AI, frameworki do red teamingu, toolchain do
+                iOS. Klienci dostają nie tylko raport, ale też kod, który nadal działa za pół roku.
+              </p>
+              <p>
+                Pracuję async-first. Cenię konkretne briefy, krótkie iteracje i deadline'y, których się
+                trzymam. Nie biorę zleceń, których nie zamknę na czas.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* SERVICES */}
+        <section id="services" className="border-t border-zinc-800 py-20">
+          <div className="mb-12 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">02 — Usługi</p>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-zinc-100">
+                Trzy obszary, w których wnoszę realną wartość.
+              </h2>
+            </div>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {services.map((s) => (
+              <article
+                key={s.n}
+                className="group flex flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 transition-colors hover:border-emerald-500/40 hover:bg-zinc-900"
+              >
+                <span className="font-mono text-xs text-emerald-400">{s.n}</span>
+                <h3 className="mt-3 text-lg font-semibold text-zinc-100">{s.name}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-400">{s.desc}</p>
+                <ul className="mt-5 space-y-2 text-sm text-zinc-300">
+                  {s.bullets.map((b) => (
+                    <li key={b} className="flex gap-2">
+                      <span className="text-emerald-400">→</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`mailto:look@f1cu.space?subject=${encodeURIComponent(s.name)}`}
+                  className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-emerald-400 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  Wycena →
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* STACK */}
+        <section id="stack" className="border-t border-zinc-800 py-20">
+          <div className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">03 — Stack</p>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-zinc-100">
+                Czym pracuję.
+              </h2>
+            </div>
+            <div className="lg:col-span-8">
+              <div className="grid gap-px overflow-hidden rounded-xl border border-zinc-800 bg-zinc-800 sm:grid-cols-2">
+                <StackRow k="Security" v="Kali MCP · Burp · custom tooling" />
+                <StackRow k="iOS" v="checkm8 · kernel patching · MDM" />
+                <StackRow k="AI / Agents" v="Hermes Runtime · Honcho · LLM ops" />
+                <StackRow k="Voice" v="ElevenLabs Scribe v2" />
+                <StackRow k="Backend" v="Python · Node · Go · Rust" />
+                <StackRow k="Infra" v="Cloudflare · NL/EU datacenters" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CONTACT CTA */}
+        <section id="contact" className="border-t border-zinc-800 py-24">
+          <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-zinc-900 to-zinc-900 p-10 sm:p-14">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-400">
+              04 — Kontakt
+            </p>
+            <h2 className="mt-4 max-w-2xl text-4xl font-bold leading-tight tracking-tight text-zinc-50 sm:text-5xl">
+              Masz coś, co trzeba zabezpieczyć albo zautomatyzować?
+            </h2>
+            <p className="mt-6 max-w-xl text-base text-zinc-300">
+              Wyślij krótki brief — cel, zakres, termin, budżet. Odezwę się w 24h
+              z konkretną propozycją zamiast ankiety dyskoveryjnej.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <a
+                href="mailto:look@f1cu.space?subject=Brief%20%2F%2F%20wsp%C3%B3%C5%82praca&body=Cel%3A%0AZakres%3A%0ATermin%3A%0ABud%C5%BCet%3A"
+                className="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-6 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 transition-colors hover:bg-emerald-400"
+              >
+                look@f1cu.space →
+              </a>
+              <a
+                href="https://github.com/ficu71"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-md border border-zinc-700 px-6 py-3 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
+              >
+                GitHub @ficu71
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-zinc-800">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} f1cu.space — Gouda, NL</span>
+          <span>Async-first · Pisz po polsku, angielsku lub niderlandzku.</span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function ProStat({ k, v }: { k: string; v: string }) {
+  return (
+    <div>
+      <dt className="text-xs uppercase tracking-widest text-zinc-500">{k}</dt>
+      <dd className="mt-1 text-sm font-semibold text-zinc-100">{v}</dd>
+    </div>
+  );
+}
+
+function StackRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 bg-zinc-950 px-5 py-4">
+      <span className="text-xs uppercase tracking-widest text-zinc-500">{k}</span>
+      <span className="text-sm text-zinc-200">{v}</span>
+    </div>
+  );
+}
+
