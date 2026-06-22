@@ -26,6 +26,16 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  // 1/10 odświeżeń pokazuje wersję profesjonalną.
+  // SSR renderuje wariant tactical, klient losuje po zamontowaniu (bez hydration mismatch).
+  const [variant, setVariant] = useState<"tactical" | "pro">("tactical");
+  useEffect(() => {
+    setVariant(Math.random() < 0.1 ? "pro" : "tactical");
+  }, []);
+  return variant === "pro" ? <ProfessionalIndex /> : <TacticalIndex />;
+}
+
+function TacticalIndex() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-ink font-sans text-zinc-200 selection:bg-neon selection:text-black">
       {/* Background layers */}
