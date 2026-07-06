@@ -1,30 +1,58 @@
-## Co buduję
+# Plan: 4 alternatywne wersje strony f1cu
 
-Jednostronicowa wizytówka dla **f1cu.space** w kierunku **Tactical Red Team** (czerń + akcent #f43f5e, JetBrains Mono + Space Grotesk, scanline overlay).
+Obecna strona (`/`) pozostaje bez zmian. Dodaję cztery osobne trasy, każda z innym kierunkiem wizualnym.
 
-## Sekcje (na jednej stronie `/`)
+## Nowe trasy
 
-1. **Nav sticky** — kropka pulsująca + `f1cu.space` + status `Active_Agent`
-2. **Hero** — `Break the limits. Unleash the truth.` + token tożsamości „Agent f1cu" + krótki opis PL
-3. **[01] Whoami** — bio PL („byt w runtime Hermesa", `f1 == freedom`, 71hax0r laboratorium) w ramce `encrypted_bio.txt`
-4. **[02] Arsenal** — 3 karty: **kombajn** (iOS toolkit — jailbreak/unlock/research), **bizon** (mass content automation engine), **jebie_w_denko** (red teaming framework)
-5. **[03] Connectivity** — duży link `look@f1cu.space` + `Gouda, NL` + link **GitHub: @ficu71** (https://github.com/ficu71) z awatarem
-6. **Footer** — `tnij` jako komenda aktywacyjna + copyright
+### `/v2` — Terminal Brutalist
+- Pełnoekranowy interaktywny terminal (fake shell).
+- Komendy: `whoami`, `skills`, `projects`, `contact`, `help`, `clear`.
+- Monospace (JetBrains Mono), zielony fosfor na czarnym, migający kursor, scanlines CSS.
+- Typewriter effect przy bootowaniu, historia komend (strzałki góra/dół).
+- Brak zewnętrznej biblioteki — czysty React state.
 
-## Implementacja techniczna
+### `/v3` — Interaktywny SVG (network graph)
+- Główna sekcja: interaktywny SVG przedstawiający graf węzłów (red team, iOS, automation, OSINT, tooling) połączonych liniami z centralnym węzłem "f1cu".
+- Hover na węźle → podświetlenie połączeń + panel z opisem obszaru.
+- Drag węzłów (prosta symulacja sił w useEffect, bez d3), animowane linie (SVG `<animate>` na `stroke-dashoffset`).
+- Tło: siatka SVG, akcent cyjan `#22d3ee` na ciemnym `#0a0f1a`.
+- Space Grotesk do UI, JetBrains Mono do etykiet.
 
-- Treść trafia do `src/routes/index.tsx` (zastąpienie placeholdera)
-- Tokeny designu (brand/surface/edge, fonty) do `src/styles.css` jako semantyczne CSS variables + `@theme inline`
-- Fonty Google (JetBrains Mono, Space Grotesk) przez `<link>` w `head()` w `__root.tsx`
-- Scanline overlay jako utility w `styles.css`
-- Logo: `https://f1cu.space/brandlogo.png` jako mały marker w hero
-- Awatar GitHub: `https://avatars.githubusercontent.com/u/216395260?v=4` w sekcji Connectivity
-- 3 placeholdery obrazów z prototypu zastępuję minimalistycznymi bloczkami terminala z mini-ASCII (bez generowania grafik AI)
-- SEO: `head()` w `index.tsx` — title „f1cu — Break the limits. Unleash the truth.", meta description PL, og:title/og:description
-- Brak backendu — czysty frontend
+### `/v4` — Editorial / Magazine
+- Layout inspirowany magazynem: asymetryczna siatka 12 kolumn, duża typografia serif (Fraunces) mieszana z mono.
+- Sekcje jako "artykuły": numerowane (01 — Red Team, 02 — iOS Research, 03 — Automation).
+- Tło kość słoniowa `#f5f1ea`, tekst grafit `#1a1a1a`, akcent karmazyn `#8b1e2b`.
+- Sticky boczny spis treści, subtelne parallax na scrollu (CSS only).
 
-## Czego NIE robię
+### `/v5` — Cyberpunk Neon Glass
+- Glassmorphism na ciemnym gradiencie (fioletowy → cyjan), animowane blob'y w tle.
+- Hero z warstwowymi kartami szkła, glow shadows, mikroanimacje na hover.
+- Space Grotesk + JetBrains Mono, akcenty magenta `#ff2e88` i cyjan `#00f0ff`.
+- Sekcje: hero, capabilities grid (6 kart glass), CTA.
 
-- Sekcji „Projekty ACComputing"
-- Generowania obrazów AI
-- Trybu jasnego / przełącznika motywu
+## Nawigacja
+- Dodaję dyskretny "version switcher" w prawym górnym rogu KAŻDEJ z 5 wersji (linki `v1 · v2 · v3 · v4 · v5`), żeby łatwo przełączać podczas oglądania.
+- Aktywna wersja podświetlona.
+
+## Zmiany techniczne
+
+```text
+src/routes/
+  index.tsx          (bez zmian — v1)
+  v2.tsx             (nowa — terminal)
+  v3.tsx             (nowa — SVG graph)
+  v4.tsx             (nowa — editorial)
+  v5.tsx             (nowa — cyber glass)
+src/components/
+  VersionSwitcher.tsx (nowy — wspólny)
+```
+
+- Każda trasa ma własne `head()` z unikalnym `title` / `description` / `og:title` / `og:description`.
+- Fonty: `bun add @fontsource/fraunces` (dla v4). JetBrains Mono i Space Grotesk już są.
+- Tokeny kolorów per-wersja definiowane lokalnie w komponencie (inline style vars) — żeby nie zaburzać globalnego motywu v1.
+- Zero zmian w `src/routes/index.tsx`, `src/routes/__root.tsx` (poza ewentualnym importem fontu, jeśli konieczne globalnie — inaczej import w pliku wersji).
+
+## Poza zakresem
+- Nie dotykam obecnej wersji `/`.
+- Bez backendu, bez Cloud — czysty frontend.
+- Bez ciężkich bibliotek (d3, three.js) — wszystko na natywnym React + SVG + CSS.
