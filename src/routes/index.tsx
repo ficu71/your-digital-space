@@ -10,6 +10,7 @@ import {
   Cpu,
   Lock,
 } from "lucide-react";
+import { VersionSwitcher } from "@/components/VersionSwitcher";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,6 +41,7 @@ const GITHUB = "https://github.com/ficu71";
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <VersionSwitcher active="v1" tone="dark" />
       <Nav />
       <main>
         <Hero />
