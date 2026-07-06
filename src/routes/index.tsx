@@ -10,6 +10,7 @@ import {
   Cpu,
   Lock,
 } from "lucide-react";
+import { VersionSwitcher } from "@/components/VersionSwitcher";
 
 export const Route = createFileRoute("/")({
   head: () => ({
