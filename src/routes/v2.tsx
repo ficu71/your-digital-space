@@ -161,8 +161,29 @@ const COMMANDS: Record<string, CommandDef> = {
     run: (args) => [args.join(" ")],
   },
   banner: {
-    desc: "reprint banner",
-    run: () => BANNER,
+    desc: "reprint banner (static copy)",
+    run: () => [...BANNERS[0], ...BANNER_FOOTER],
+  },
+  logo: {
+    desc: "cycle ASCII logo style (logo 0|1|2)",
+    run: (args) => {
+      const n = args[0] ? parseInt(args[0], 10) : -1;
+      window.dispatchEvent(new CustomEvent("f1cu:logo", { detail: { n } }));
+      return ["logo style updated."];
+    },
+  },
+  anim: {
+    desc: "logo animation: pulse | flicker | off",
+    run: (args) => {
+      const mode = (args[0] ?? "").toLowerCase();
+      if (mode && !["pulse", "flicker", "off"].includes(mode)) {
+        return ["usage: anim pulse|flicker|off"];
+      }
+      window.dispatchEvent(
+        new CustomEvent("f1cu:anim", { detail: { mode: mode || null } }),
+      );
+      return [`logo animation: ${mode || "cycled"}`];
+    },
   },
   sudo: {
     desc: "try to gain root",
