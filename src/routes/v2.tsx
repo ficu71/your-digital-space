@@ -26,7 +26,7 @@ export const Route = createFileRoute("/v2")({
 type Line = { kind: "in" | "out" | "sys" | "err" | "hint" | "banner"; text: string };
 
 const BANNERS: string[][] = [
-  // 0 — Custom
+  // 0 — Block
   [
     "▀ ▄▄██████████ ▀ ▄██████ ▀ ▄▄██████████ ██████ ▓ █████ ██████████▄▄ ▀█▀ ▄██████ ",
     " ▓▓▓▓▓ ▄ ▓▓▓▓▓ ▄▓▓▓▓▓▓▓▓  ▓▓▓▓▓ ▄ ▓▓▓▓▓ █▓▓▓▓▓ ▓ ▓▓▓▓█ ▓▓▓▓▓ ▄ ▓▓▓▓▓  ▄▓▓▓▓▓▓▓▓ ",
@@ -38,7 +38,9 @@ const BANNERS: string[][] = [
     "▒▒▒▒▒▒ ▓▓▓▓▓▓▓▓▓▓ ▒▒▒▒▒▒ ▒▒▓▓▓▒ ▓ ▒▒▒▒▒ ▒▒▓▓▓▒ ▓ ▒▓▓▒▒ ▓▓▓▓▓▓▓ ▒▒▒▒▒▒ ▓▓ ▒▒▒▒▒▒ ",
     "▓░░░░▓ ▓▓▓▓▓▓▓▓▓▓ ▓░░░░▓  ▓▓▓▓▓ ▀ ▓░░░▓  ▓▓▓▓▓ ▀ ▓▓▓▓░ ▓▓▓▓▓▓▓ ▓░░░░▓ ▓▓ ▓░░░░▓ ",
     "██████ ▓▓▓▓▓▓▓▓▓ ▄██████▄▄ ▀▀██████████ ▄ ▀▀██████▀▀ ▄█▓▓▓▓▓▓▓ ██████ ▓ ▄██████▄",
-    "",
+  ],
+  // 1 — Block Outline
+  [
     "   ▄▄█▄     ▄░      ▄    ▄    ▄      ▄▄▄▄     ▄░",
     " ▄░▀ ▓▒░▀ ▄░▒▒  ▄░▓▀▒░▀  ░▒▌  ▒█▄  ▀░▓▀ ▓▒▄ ▄░▒▒",
     "░▒▓  ░▀    ▒▓█ ░▒▓▌ ▀    ▒▓█  ▓█▒▌   ▀  ▓░▀  ▒▓█",
@@ -47,7 +49,7 @@ const BANNERS: string[][] = [
     " ▀█        ▀    ▀░▄▀▒░▀▀   ▀▀▀               ▀  ",
     "                    ▀",
   ],
-  // 1 — Cosmike2
+  // 2 — Cosmike2
   [
     " .::::. :.                 ...::::: :. ",
     " ;;  `'.;;                 '''``;;'.;; ",
@@ -56,28 +58,12 @@ const BANNERS: string[][] = [
     " 888    8888b    ,o,888   888888    88 ",
     " \"MM,  MMMM\"YUMMMMP\" \"YUM\" MPMMM   MMMM",
   ],
-  // 2 — ANSI Shadow
+  // 3 — Hidden (easter egg)
   [
-    "███████╗ ██╗    ██████╗██╗   ██╗",
-    "██╔════╝███║   ██╔════╝██║   ██║",
-    "█████╗  ╚██║   ██║     ██║   ██║",
-    "██╔══╝   ██║   ██║     ██║   ██║",
-    "██║      ██║   ╚██████╗╚██████╔╝",
-    "╚═╝      ╚═╝    ╚═════╝ ╚═════╝ ",
-  ],
-  // 3 — Slant
-  [
-    "   ____  ___                ",
-    "  / __/ <  /_____  __ __    ",
-    " / _/   / // ___/ / // /    ",
-    "/_/    /_/ \\___/  \\_,_/     ",
-  ],
-  // 4 — Small Slant
-  [
-    "   ____ ___             ",
-    "  / _// <  / ______ __ ",
-    " / _/ / // / / __/ // / ",
-    "/_/  /_//_/  \\__/\\_,_/  ",
+    "",
+    "  ░░░░░░░░░░░░░░░░░░░░░░░░",
+    "  ░  ᶠᶸᶜᵏᵧₒᵤ !𝓷𝓲𝓰𝓰𝓪  ░",
+    "  ░░░░░░░░░░░░░░░░░░░░░░░░",
   ],
 ];
 
@@ -88,6 +74,7 @@ const BANNER_FOOTER = [
   "type 'help' to list commands, or press Tab to autocomplete.",
 ];
 
+const VISIBLE_BANNERS = 3; // styles 0-2 are visible; 3 is hidden
 type BannerAnim = "pulse" | "flicker" | "off";
 const ANIM_ORDER: BannerAnim[] = ["pulse", "flicker", "off"];
 
@@ -200,7 +187,9 @@ const COMMANDS: Record<string, CommandDef> = {
   logo: {
     desc: "cycle ASCII logo style (logo 0|1|2)",
     run: (args) => {
-      const n = args[0] ? parseInt(args[0], 10) : -1;
+      const arg = (args[0] ?? "").toLowerCase();
+      const n =
+        arg === "fuck" || arg === "nigga" ? BANNERS.length - 1 : arg ? parseInt(arg, 10) : -1;
       window.dispatchEvent(new CustomEvent("f1cu:logo", { detail: { n } }));
       return ["logo style updated."];
     },
@@ -312,7 +301,7 @@ function TerminalPage() {
       const detail = (e as CustomEvent<{ n: number }>).detail;
       setBannerStyle((prev) => {
         if (detail?.n >= 0 && detail.n < BANNERS.length) return detail.n;
-        return (prev + 1) % BANNERS.length;
+        return (prev + 1) % VISIBLE_BANNERS; // cycle only visible styles
       });
     };
     const onAnim = (e: Event) => {
@@ -590,7 +579,7 @@ function TerminalPage() {
           {BANNERS[bannerStyle].join("\n")}
         </pre>
         <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
-          <span>logo {bannerStyle + 1}/{BANNERS.length}</span>
+          <span>logo {bannerStyle >= VISIBLE_BANNERS ? "hidden" : `${bannerStyle + 1}/${VISIBLE_BANNERS}`}</span>
           <span>·</span>
           <button
             type="button"
@@ -602,7 +591,7 @@ function TerminalPage() {
           <span>·</span>
           <button
             type="button"
-            onClick={() => setBannerStyle((p) => (p + 1) % BANNERS.length)}
+            onClick={() => setBannerStyle((p) => (p + 1) % VISIBLE_BANNERS)}
             className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
           >
             next style
