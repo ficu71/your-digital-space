@@ -281,7 +281,7 @@ function TerminalPage() {
       { kind: "sys", text: "[  ok  ] loading opsec profile" },
       { kind: "sys", text: "[  ok  ] mounting /home/f1cu" },
       { kind: "sys", text: "" },
-      ...BANNER.map((t) => ({ kind: "sys" as const, text: t })),
+      ...BANNER_FOOTER.map((t) => ({ kind: "sys" as const, text: t })),
       { kind: "sys", text: "" },
     ];
     let i = 0;
