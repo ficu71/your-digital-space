@@ -567,7 +567,11 @@ function TerminalPage() {
         className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16"
       >
         <pre
-          className={`whitespace-pre break-words text-green-300 ${
+          className={`whitespace-pre break-words ${
+            bannerStyle >= VISIBLE_BANNERS
+              ? "text-green-900 opacity-30 transition-all duration-700 hover:text-green-400 hover:opacity-100"
+              : "text-green-300"
+          } ${
             bannerAnim === "pulse"
               ? "f1cu-banner-pulse"
               : bannerAnim === "flicker"
