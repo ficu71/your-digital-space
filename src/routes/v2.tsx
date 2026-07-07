@@ -301,7 +301,7 @@ function TerminalPage() {
       const detail = (e as CustomEvent<{ n: number }>).detail;
       setBannerStyle((prev) => {
         if (detail?.n >= 0 && detail.n < BANNERS.length) return detail.n;
-        return (prev + 1) % BANNERS.length;
+        return (prev + 1) % VISIBLE_BANNERS; // cycle only visible styles
       });
     };
     const onAnim = (e: Event) => {
