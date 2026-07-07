@@ -264,7 +264,7 @@ function TerminalPage() {
   const setInputAndCursor = (v: string, c?: number) => {
     setInput(v);
     const pos = c ?? v.length;
-    setCursor(pos);
+    
     requestAnimationFrame(() => {
       inputRef.current?.setSelectionRange(pos, pos);
     });
