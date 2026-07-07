@@ -1,229 +1,304 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
+import { OrbitControls, Html } from "@react-three/drei";
+import * as THREE from "three";
 import { VersionSwitcher } from "@/components/VersionSwitcher";
-import { ArrowUpRight, Github, Mail, Shield, Smartphone, Workflow, Radar, Cpu, Zap } from "lucide-react";
+import { ClientOnly } from "@/components/ClientOnly";
 
 export const Route = createFileRoute("/v5")({
   head: () => ({
     meta: [
-      { title: "f1cu // neon — v5" },
+      { title: "f1cu // neural sphere — v5" },
       {
         name: "description",
         content:
-          "Neon-glass portfolio for f1cu — offensive security, iOS internals, automation. Cyberpunk edition.",
+          "Interactive 3D neural sphere of f1cu's capabilities. Rotate the sphere and click nodes to inspect.",
       },
-      { property: "og:title", content: "f1cu // neon" },
+      { property: "og:title", content: "f1cu // neural sphere" },
       {
         property: "og:description",
-        content: "Glassmorphism cyberpunk take on the f1cu portfolio.",
+        content: "Drag to rotate. Click a node to inspect. WebGL portfolio.",
       },
       { property: "og:url", content: "/v5" },
     ],
     links: [{ rel: "canonical", href: "/v5" }],
   }),
-  component: NeonPage,
+  component: V5Page,
 });
 
-const CAPS = [
-  { icon: Shield, title: "Red Team Ops", body: "Objective-based adversary simulation, ATT&CK-mapped, detection handoff included." },
-  { icon: Smartphone, title: "iOS Research", body: "Runtime hooking, IPC audits, entitlement hardening. Frida / Ghidra / Hopper." },
-  { icon: Workflow, title: "Automation", body: "CI-integrated security tooling, Python + TypeScript, LLM-assisted triage." },
-  { icon: Radar, title: "OSINT", body: "External attack surface mapping and targeted intelligence for scoping." },
-  { icon: Cpu, title: "Tooling", body: "Custom Burp extensions, internal platforms, agent-based recon. Yours to keep." },
-  { icon: Zap, title: "Rapid Response", body: "Same-day NDAs, 48h written proposals, weekly delivery cadence." },
+type Node = {
+  id: string;
+  label: string;
+  desc: string;
+  color: string;
+  pos: THREE.Vector3;
+};
+
+const RAW_NODES: Omit<Node, "pos">[] = [
+  { id: "red-team", label: "red team", color: "#ff2e88", desc: "objective-based adversary simulation, MITRE ATT&CK mapped, custom implants." },
+  { id: "ios", label: "iOS internals", color: "#00f0ff", desc: "static + dynamic analysis, frida hooking, entitlements, jailed runtime research." },
+  { id: "automation", label: "automation", color: "#a78bfa", desc: "python / typescript tooling, ci-integrated, yours to keep after the engagement." },
+  { id: "osint", label: "osint", color: "#facc15", desc: "attack surface mapping, exposure discovery, dark web monitoring." },
+  { id: "cloud", label: "cloud", color: "#34d399", desc: "aws / gcp misconfig, iam abuse, terraform review, cloudflare edge hardening." },
+  { id: "web", label: "web app", color: "#fb923c", desc: "burp pro, auth flow abuse, business-logic bugs, api pentesting." },
+  { id: "tooling", label: "tooling", color: "#f472b6", desc: "internal recon platform, ci security gates, llm-assisted triage." },
+  { id: "training", label: "training", color: "#60a5fa", desc: "workshops for eng teams: threat modelling, secure sdlc, red vs blue drills." },
 ];
 
-function NeonPage() {
+// distribute on sphere using golden angle
+function fibonacciSphere(count: number, radius: number): THREE.Vector3[] {
+  const pts: THREE.Vector3[] = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / (count - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = golden * i;
+    pts.push(new THREE.Vector3(Math.cos(theta) * r * radius, y * radius, Math.sin(theta) * r * radius));
+  }
+  return pts;
+}
+
+function NodeMesh({
+  node,
+  active,
+  onSelect,
+}: {
+  node: Node;
+  active: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const [hover, setHover] = useState(false);
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (!ref.current) return;
+    const s = active ? 1.6 : hover ? 1.3 : 1;
+    ref.current.scale.lerp(new THREE.Vector3(s, s, s), Math.min(dt * 8, 1));
+  });
   return (
-    <div
-      className="relative min-h-screen overflow-hidden text-white"
-      style={{
-        background: "radial-gradient(ellipse at top, #1a0b3d 0%, #0a0518 40%, #050208 100%)",
-        fontFamily: "'Space Grotesk', sans-serif",
-      }}
-    >
-      <VersionSwitcher active="v5" tone="neon" />
-
-      {/* animated blobs */}
-      <style>{`
-        @keyframes blob1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(80px,-60px) scale(1.15)} }
-        @keyframes blob2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-100px,80px) scale(1.2)} }
-        @keyframes blob3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(60px,60px) scale(0.9)} }
-        @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        .neon-glow { text-shadow: 0 0 20px rgba(0,240,255,0.6), 0 0 40px rgba(255,46,136,0.3); }
-        .neon-card { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
-        .neon-card:hover { transform: translateY(-4px); box-shadow: 0 0 40px rgba(0,240,255,0.25); border-color: rgba(0,240,255,0.5) !important; }
-      `}</style>
-
-      <div
-        className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full opacity-40 blur-3xl"
-        style={{ background: "#ff2e88", animation: "blob1 18s ease-in-out infinite" }}
-      />
-      <div
-        className="pointer-events-none absolute top-40 right-0 h-[600px] w-[600px] rounded-full opacity-30 blur-3xl"
-        style={{ background: "#00f0ff", animation: "blob2 22s ease-in-out infinite" }}
-      />
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-30 blur-3xl"
-        style={{ background: "#7c3aed", animation: "blob3 20s ease-in-out infinite" }}
-      />
-
-      {/* nav */}
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-3">
+    <group position={node.pos}>
+      <mesh
+        ref={ref}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setHover(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          document.body.style.cursor = "auto";
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(node.id);
+        }}
+      >
+        <sphereGeometry args={[0.12, 24, 24]} />
+        <meshStandardMaterial
+          color={node.color}
+          emissive={node.color}
+          emissiveIntensity={hover || active ? 1.4 : 0.6}
+          toneMapped={false}
+        />
+      </mesh>
+      {(hover || active) && (
+        <Html
+          center
+          distanceFactor={8}
+          style={{ pointerEvents: "none", userSelect: "none" }}
+        >
           <div
-            className="grid h-9 w-9 place-items-center rounded-lg text-sm font-bold text-black"
-            style={{ background: "linear-gradient(135deg, #00f0ff, #ff2e88)" }}
-          >
-            f1
-          </div>
-          <div className="text-sm font-semibold tracking-tight">f1cu<span style={{ color: "#00f0ff" }}>.neon</span></div>
-        </div>
-        <a
-          href="mailto:look@f1cu.space"
-          className="rounded-full border border-white/20 bg-white/5 px-5 py-2 text-xs font-medium backdrop-blur-md transition-colors hover:bg-white/10"
-        >
-          Get in touch →
-        </a>
-      </header>
-
-      {/* hero */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-16 pt-12 md:pt-24">
-        <div
-          className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs backdrop-blur-md"
-          style={{ borderColor: "rgba(0,240,255,0.4)", background: "rgba(0,240,255,0.08)", color: "#7ff5ff" }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#00f0ff", boxShadow: "0 0 8px #00f0ff" }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>online · booking Q3 2026</span>
-        </div>
-
-        <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight md:text-8xl">
-          Offense as a<br />
-          <span
-            className="neon-glow"
             style={{
-              backgroundImage: "linear-gradient(90deg, #00f0ff, #ff2e88, #7c3aed)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              color: "transparent",
+              padding: "4px 10px",
+              background: "rgba(3,6,13,0.85)",
+              border: `1px solid ${node.color}`,
+              borderRadius: 2,
+              color: node.color,
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: 11,
+              letterSpacing: 1,
+              whiteSpace: "nowrap",
+              transform: "translateY(-24px)",
+              textShadow: `0 0 6px ${node.color}`,
             }}
           >
-            first-class service.
-          </span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-white/70">
-          I'm f1cu. Independent offensive security engineer working with teams that
-          need real answers, not checklists. Red team, iOS internals, automation.
-        </p>
-
-        <div className="mt-10 flex flex-wrap items-center gap-3">
-          <a
-            href="mailto:look@f1cu.space"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition-transform hover:scale-[1.02]"
-            style={{
-              background: "linear-gradient(135deg, #00f0ff, #7c3aed)",
-              boxShadow: "0 0 30px rgba(0,240,255,0.4)",
-            }}
-          >
-            <Mail className="h-4 w-4" /> Start a conversation
-            <ArrowUpRight className="h-4 w-4" />
-          </a>
-          <a
-            href="https://github.com/ficu71"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold backdrop-blur-md transition-colors hover:bg-white/10"
-          >
-            <Github className="h-4 w-4" /> View GitHub
-          </a>
-        </div>
-      </section>
-
-      {/* capabilities grid */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24">
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="text-3xl font-semibold md:text-4xl">Capabilities</h2>
-          <div
-            className="text-[10px] uppercase tracking-widest text-white/40"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            // six lanes
+            {node.label}
           </div>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {CAPS.map((c) => (
-            <div
-              key={c.title}
-              className="neon-card group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl"
-            >
-              <div
-                className="mb-4 grid h-11 w-11 place-items-center rounded-xl border border-white/10"
-                style={{
-                  background: "linear-gradient(135deg, rgba(0,240,255,0.2), rgba(255,46,136,0.2))",
-                  animation: "floatY 4s ease-in-out infinite",
-                }}
-              >
-                <c.icon className="h-5 w-5" style={{ color: "#7ff5ff" }} />
-              </div>
-              <h3 className="text-lg font-semibold">{c.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{c.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        </Html>
+      )}
+    </group>
+  );
+}
 
-      {/* CTA */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24">
+function Connections({ nodes }: { nodes: Node[] }) {
+  const geometry = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    const positions: number[] = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const d = nodes[i].pos.distanceTo(nodes[j].pos);
+        if (d < 2.6) {
+          positions.push(nodes[i].pos.x, nodes[i].pos.y, nodes[i].pos.z);
+          positions.push(nodes[j].pos.x, nodes[j].pos.y, nodes[j].pos.z);
+        }
+      }
+    }
+    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    return g;
+  }, [nodes]);
+
+  return (
+    <lineSegments geometry={geometry}>
+      <lineBasicMaterial color="#22d3ee" transparent opacity={0.28} />
+    </lineSegments>
+  );
+}
+
+function Sphere({
+  activeId,
+  setActiveId,
+}: {
+  activeId: string | null;
+  setActiveId: (id: string | null) => void;
+}) {
+  const nodes: Node[] = useMemo(() => {
+    const positions = fibonacciSphere(RAW_NODES.length, 2.1);
+    return RAW_NODES.map((n, i) => ({ ...n, pos: positions[i] }));
+  }, []);
+
+  const group = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    if (!group.current) return;
+    if (activeId === null) group.current.rotation.y += dt * 0.15;
+  });
+
+  return (
+    <group ref={group}>
+      {/* wireframe hull */}
+      <mesh>
+        <icosahedronGeometry args={[2.1, 2]} />
+        <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.35} />
+      </mesh>
+      <Connections nodes={nodes} />
+      {nodes.map((n) => (
+        <NodeMesh key={n.id} node={n} active={activeId === n.id} onSelect={setActiveId} />
+      ))}
+      {/* inner core */}
+      <mesh>
+        <sphereGeometry args={[0.4, 32, 32]} />
+        <meshStandardMaterial
+          color="#ff2e88"
+          emissive="#ff2e88"
+          emissiveIntensity={0.9}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function Scene({
+  activeId,
+  setActiveId,
+}: {
+  activeId: string | null;
+  setActiveId: (id: string | null) => void;
+}) {
+  return (
+    <>
+      <color attach="background" args={["#05010f"]} />
+      <fog attach="fog" args={["#05010f", 6, 16]} />
+      <ambientLight intensity={0.4} />
+      <pointLight position={[5, 5, 5]} intensity={1.2} color="#ff2e88" />
+      <pointLight position={[-5, -5, -5]} intensity={1.2} color="#00f0ff" />
+      <Sphere activeId={activeId} setActiveId={setActiveId} />
+      <OrbitControls
+        enablePan={false}
+        minDistance={4}
+        maxDistance={9}
+        enableDamping
+        dampingFactor={0.08}
+      />
+    </>
+  );
+}
+
+function V5Page() {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const active = RAW_NODES.find((n) => n.id === activeId);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#05010f] text-slate-100">
+      <VersionSwitcher active="v5" />
+
+      {/* Title */}
+      <div className="pointer-events-none absolute left-6 top-6 z-20 font-mono">
+        <div className="text-[11px] uppercase tracking-[0.4em] text-fuchsia-400/80">
+          f1cu.neural.sphere
+        </div>
+        <div className="mt-1 text-[10px] text-slate-500">
+          drag · scroll · click a node
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="pointer-events-none absolute right-6 top-6 z-20 space-y-1 font-mono text-[11px] text-slate-400">
+        {RAW_NODES.map((n) => (
+          <div key={n.id} className="flex items-center gap-2">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: n.color, boxShadow: `0 0 8px ${n.color}` }}
+            />
+            <span style={{ color: activeId === n.id ? n.color : undefined }}>{n.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Detail panel */}
+      {active && (
         <div
-          className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.04] p-10 backdrop-blur-xl md:p-16"
-          style={{ boxShadow: "0 0 60px rgba(124,58,237,0.15)" }}
+          className="absolute bottom-6 left-1/2 z-20 w-[min(560px,calc(100vw-3rem))] -translate-x-1/2 border bg-black/70 p-5 font-mono backdrop-blur"
+          style={{ borderColor: active.color, boxShadow: `0 0 40px ${active.color}55` }}
         >
-          <div
-            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-40 blur-3xl"
-            style={{ background: "#ff2e88" }}
-          />
-          <div className="relative grid gap-8 md:grid-cols-2 md:items-end">
+          <div className="flex items-start justify-between gap-4">
             <div>
               <div
-                className="text-[10px] uppercase tracking-widest"
-                style={{ color: "#00f0ff", fontFamily: "'JetBrains Mono', monospace" }}
+                className="text-[11px] uppercase tracking-[0.3em]"
+                style={{ color: active.color }}
               >
-                → contact
+                node // {active.id}
               </div>
-              <h2 className="mt-3 text-3xl font-semibold md:text-5xl">
-                Have a target<br />in mind?
-              </h2>
-              <p className="mt-4 max-w-md text-white/60">
-                Objective, stack, timeline. I'll come back with scope and price within
-                48 hours.
-              </p>
+              <div className="mt-1 text-lg text-slate-100">{active.label}</div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">{active.desc}</p>
             </div>
-            <div className="flex flex-col gap-3 md:items-end">
-              <a
-                href="mailto:look@f1cu.space?subject=Engagement%20inquiry"
-                className="inline-flex items-center gap-3 rounded-full px-6 py-3 text-sm font-semibold text-black"
-                style={{ background: "linear-gradient(135deg,#00f0ff,#ff2e88)" }}
-              >
-                <Mail className="h-4 w-4" />
-                look@f1cu.space
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-              <div
-                className="text-xs text-white/40"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                Gouda, NL · PGP on request
-              </div>
-            </div>
+            <button
+              onClick={() => setActiveId(null)}
+              className="shrink-0 border px-3 py-1 text-[11px] uppercase tracking-widest transition hover:bg-white/5"
+              style={{ borderColor: active.color, color: active.color }}
+            >
+              close
+            </button>
           </div>
         </div>
-      </section>
+      )}
 
-      <footer
-        className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-white/40"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      <ClientOnly
+        fallback={
+          <div className="flex h-screen items-center justify-center font-mono text-fuchsia-400/60">
+            spinning up neural sphere...
+          </div>
+        }
       >
-        © {new Date().getFullYear()} f1cu.space · v5 neon glass
-      </footer>
+        <Canvas
+          camera={{ position: [0, 0, 6.5], fov: 55 }}
+          className="!h-screen !w-screen"
+          dpr={[1, 2]}
+        >
+          <Suspense fallback={null}>
+            <Scene activeId={activeId} setActiveId={setActiveId} />
+          </Suspense>
+        </Canvas>
+      </ClientOnly>
     </div>
   );
 }

@@ -1,215 +1,315 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense, useRef, useState } from "react";
+import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
+import { OrbitControls, Html, Stars, Float } from "@react-three/drei";
+import * as THREE from "three";
 import { VersionSwitcher } from "@/components/VersionSwitcher";
+import { ClientOnly } from "@/components/ClientOnly";
 
 export const Route = createFileRoute("/v4")({
   head: () => ({
     meta: [
-      { title: "f1cu // editorial — v4" },
+      { title: "f1cu // holo control room — v4" },
       {
         name: "description",
         content:
-          "An editorial portfolio for f1cu — offensive security, iOS internals, automation. Read as a magazine.",
+          "Interactive 3D holographic control room. Orbit the scene and click panels to explore f1cu's work.",
       },
-      { property: "og:title", content: "f1cu // editorial" },
-      {
-        property: "og:description",
-        content: "Three long-form dispatches from the offensive security desk.",
-      },
+      { property: "og:title", content: "f1cu // holo control room" },
+      { property: "og:description", content: "Drag to orbit. Click panels to open. WebGL portfolio." },
       { property: "og:url", content: "/v4" },
     ],
     links: [{ rel: "canonical", href: "/v4" }],
   }),
-  component: EditorialPage,
+  component: V4Page,
 });
 
-const IVORY = "#f5f1ea";
-const INK = "#1a1a1a";
-const CRIMSON = "#8b1e2b";
-const MUTED = "#6b6259";
+type Panel = {
+  id: string;
+  title: string;
+  color: string;
+  body: string[];
+  position: [number, number, number];
+};
 
-const ARTICLES = [
+const PANELS: Panel[] = [
   {
-    n: "01",
-    kicker: "DISPATCH",
-    title: "Red teams work best when nobody notices.",
-    lede: "Objective-based operations against production stacks — recon, initial access, lateral movement, exfiltration. Mapped to ATT&CK, with a detection handoff that your blue team can actually use on Monday.",
+    id: "about",
+    title: "// about",
+    color: "#22d3ee",
     body: [
-      "Every engagement produces two artifacts. The first is a working proof of concept for each finding — not a screenshot, a script your engineers can run. The second is a written report that speaks to executives without patronising the security team.",
-      "Assumed-breach and full-scope both belong in the toolbox. Which one fits depends on the risk model, not the sales cycle.",
+      "f1cu — independent offensive security engineer.",
+      "gouda, NL. 8+ years on the tools.",
+      "red team ops, iOS internals, security automation.",
     ],
+    position: [0, 0.6, -3.4],
   },
   {
-    n: "02",
-    kicker: "RESEARCH",
-    title: "iOS is a research target, not a checkbox.",
-    lede: "Years of hands-on iOS internals — sandbox, entitlements, IPC, jailbreak-era exploit context — applied to modern app security. Frida, Ghidra, Hopper, objection, class-dump.",
+    id: "skills",
+    title: "// skills",
+    color: "#a78bfa",
     body: [
-      "Mobile applications tend to ship with the assumption that the runtime is trusted. That assumption is a finding waiting to happen. Runtime hooking, keychain inspection, and IPC audits routinely surface the sort of issues that don't appear in a static scan.",
-      "The deliverable includes an entitlement hardening pass. Small changes to the manifest close large classes of bug.",
+      "offensive: burp, cobalt strike, sliver, bloodhound",
+      "ios: frida, ghidra, hopper, objection",
+      "automation: python, ts, fastapi, playwright",
+      "cloud: aws, gcp, terraform, cloudflare",
     ],
+    position: [3.2, 0.4, -1.2],
   },
   {
-    n: "03",
-    kicker: "PRACTICE",
-    title: "Automation you keep after the invoice.",
-    lede: "Custom tooling for teams that outgrew off-the-shelf scanners. CI-integrated checks, agent-based recon, and internal platforms tuned to your stack. Python and TypeScript, documented and handed over.",
+    id: "projects",
+    title: "// projects",
+    color: "#f472b6",
     body: [
-      "The default is: everything I build during an engagement ships to your monorepo with tests and a README. No black boxes, no ongoing licence, no lock-in.",
-      "LLM-assisted triage pipelines are earning their keep on the recon side — separating signal from noise on internal surfaces that used to require a human sweep.",
+      "EU fintech red team — 2025 [classified]",
+      "iOS runtime hardening — 2025 [classified]",
+      "recon platform — python + fastapi + llm",
+      "ci security gates — ts + playwright + semgrep",
     ],
+    position: [-3.2, 0.4, -1.2],
+  },
+  {
+    id: "contact",
+    title: "// contact",
+    color: "#34d399",
+    body: [
+      "email  : look@f1cu.space",
+      "github : github.com/ficu71",
+      "signal : on request",
+      "nda    : signed same day",
+    ],
+    position: [0, -1.4, -2.6],
   },
 ];
 
-function EditorialPage() {
+function GridFloor() {
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: IVORY, color: INK, fontFamily: "'Fraunces', Georgia, serif" }}
-    >
-      <VersionSwitcher active="v4" tone="light" />
+    <gridHelper
+      args={[40, 40, "#164e63", "#0e2a33"]}
+      position={[0, -2.2, 0]}
+    />
+  );
+}
 
-      {/* Masthead */}
-      <header className="border-b" style={{ borderColor: INK }}>
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-[11px] uppercase tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          <span>Vol. VIII · No. 12</span>
-          <span>The f1cu Quarterly</span>
-          <span>Gouda, NL · MMXXVI</span>
-        </div>
-        <div className="mx-auto max-w-6xl px-6 pb-10 pt-6 text-center">
+function HoloPanel({
+  panel,
+  active,
+  onSelect,
+}: {
+  panel: Panel;
+  active: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const [hover, setHover] = useState(false);
+
+  useFrame((_, dt) => {
+    if (!ref.current) return;
+    const targetScale = active ? 1.25 : hover ? 1.1 : 1;
+    ref.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), Math.min(dt * 6, 1));
+    ref.current.lookAt(0, ref.current.position.y, 5);
+  });
+
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    onSelect(panel.id);
+  };
+
+  return (
+    <Float speed={1.4} rotationIntensity={0.15} floatIntensity={0.35}>
+      <group
+        ref={ref}
+        position={panel.position}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHover(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          document.body.style.cursor = "auto";
+        }}
+        onClick={handleClick}
+      >
+        {/* glow backplate */}
+        <mesh position={[0, 0, -0.05]}>
+          <planeGeometry args={[2.3, 1.5]} />
+          <meshBasicMaterial color={panel.color} transparent opacity={hover || active ? 0.18 : 0.09} />
+        </mesh>
+        {/* frame */}
+        <mesh>
+          <planeGeometry args={[2.1, 1.35]} />
+          <meshStandardMaterial
+            color="#050a14"
+            emissive={panel.color}
+            emissiveIntensity={hover || active ? 0.35 : 0.18}
+            transparent
+            opacity={0.85}
+          />
+        </mesh>
+        {/* border */}
+        <lineSegments>
+          <edgesGeometry args={[new THREE.PlaneGeometry(2.1, 1.35)]} />
+          <lineBasicMaterial color={panel.color} />
+        </lineSegments>
+
+        <Html
+          transform
+          distanceFactor={2.2}
+          position={[0, 0, 0.01]}
+          style={{ pointerEvents: "none", userSelect: "none" }}
+        >
           <div
-            className="text-[10px] uppercase tracking-[0.4em]"
-            style={{ color: CRIMSON, fontFamily: "'JetBrains Mono', monospace" }}
+            style={{
+              width: 360,
+              padding: "18px 22px",
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              color: "#e2f2ff",
+              textShadow: `0 0 8px ${panel.color}`,
+            }}
           >
-            An offensive security dispatch
+            <div style={{ color: panel.color, fontSize: 14, letterSpacing: 2, marginBottom: 10 }}>
+              {panel.title}
+            </div>
+            {panel.body.map((l, i) => (
+              <div key={i} style={{ fontSize: 12, lineHeight: 1.7, opacity: active ? 1 : 0.85 }}>
+                {l}
+              </div>
+            ))}
+            {!active && (
+              <div style={{ marginTop: 12, fontSize: 10, color: panel.color, opacity: 0.7 }}>
+                › click to focus
+              </div>
+            )}
           </div>
-          <h1
-            className="mt-4 text-6xl font-semibold leading-[0.95] tracking-tight md:text-8xl"
-            style={{ fontStyle: "italic" }}
-          >
-            f<span style={{ color: CRIMSON }}>1</span>cu
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed" style={{ color: MUTED }}>
-            Three dispatches from an independent offensive security engineer.
-            Red teaming, iOS internals research, and automation for teams that ship.
-          </p>
+        </Html>
+      </group>
+    </Float>
+  );
+}
+
+function CenterCore() {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (!ref.current) return;
+    ref.current.rotation.x += dt * 0.3;
+    ref.current.rotation.y += dt * 0.4;
+  });
+  return (
+    <group>
+      <mesh ref={ref}>
+        <icosahedronGeometry args={[0.55, 0]} />
+        <meshStandardMaterial
+          color="#0ea5e9"
+          wireframe
+          emissive="#22d3ee"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+      <pointLight position={[0, 0, 0]} intensity={2} color="#22d3ee" distance={8} />
+    </group>
+  );
+}
+
+function Scene({
+  activeId,
+  setActiveId,
+}: {
+  activeId: string | null;
+  setActiveId: (id: string | null) => void;
+}) {
+  return (
+    <>
+      <color attach="background" args={["#03060d"]} />
+      <fog attach="fog" args={["#03060d", 6, 18]} />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[5, 6, 5]} intensity={0.6} />
+      <Stars radius={40} depth={30} count={2000} factor={3} fade speed={0.6} />
+      <GridFloor />
+      <CenterCore />
+      {PANELS.map((p) => (
+        <HoloPanel key={p.id} panel={p} active={activeId === p.id} onSelect={setActiveId} />
+      ))}
+      <OrbitControls
+        enablePan={false}
+        minDistance={3}
+        maxDistance={9}
+        maxPolarAngle={Math.PI / 1.7}
+        minPolarAngle={Math.PI / 3.4}
+        autoRotate={activeId === null}
+        autoRotateSpeed={0.6}
+      />
+    </>
+  );
+}
+
+function V4Page() {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const active = PANELS.find((p) => p.id === activeId);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#03060d] text-slate-100">
+      <VersionSwitcher active="v4" />
+
+      {/* Header */}
+      <div className="pointer-events-none absolute left-6 top-6 z-20 font-mono text-xs uppercase tracking-[0.35em] text-cyan-300/80">
+        <div>f1cu.holo.mesh</div>
+        <div className="mt-1 text-[10px] text-slate-500">
+          drag · scroll · click panels
         </div>
-      </header>
-
-      <div className="mx-auto grid max-w-6xl grid-cols-12 gap-8 px-6 py-16">
-        {/* Sticky TOC */}
-        <aside className="col-span-12 md:col-span-3">
-          <div className="sticky top-8">
-            <div
-              className="text-[10px] uppercase tracking-widest"
-              style={{ color: CRIMSON, fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              In this issue
-            </div>
-            <ul className="mt-4 space-y-3 text-sm" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              {ARTICLES.map((a) => (
-                <li key={a.n}>
-                  <a
-                    href={`#a${a.n}`}
-                    className="flex gap-3 leading-snug transition-colors"
-                    style={{ color: INK }}
-                  >
-                    <span style={{ color: CRIMSON }}>{a.n}</span>
-                    <span className="normal-case" style={{ fontFamily: "'Fraunces', serif" }}>
-                      {a.title}
-                    </span>
-                  </a>
-                </li>
-              ))}
-              <li className="pt-4">
-                <a
-                  href="#colophon"
-                  className="text-[10px] uppercase tracking-widest"
-                  style={{ color: MUTED }}
-                >
-                  → Colophon
-                </a>
-              </li>
-            </ul>
-          </div>
-        </aside>
-
-        {/* Articles */}
-        <main className="col-span-12 space-y-24 md:col-span-9">
-          {ARTICLES.map((a, i) => (
-            <article key={a.n} id={`a${a.n}`} className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 md:col-span-3">
-                <div
-                  className="text-[80px] font-semibold leading-none"
-                  style={{ color: CRIMSON, fontStyle: "italic" }}
-                >
-                  {a.n}
-                </div>
-                <div
-                  className="mt-2 text-[10px] uppercase tracking-widest"
-                  style={{ color: MUTED, fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {a.kicker}
-                </div>
-              </div>
-              <div className="col-span-12 md:col-span-9">
-                <h2 className="text-3xl font-semibold leading-tight md:text-5xl" style={{ fontStyle: i % 2 === 0 ? "normal" : "italic" }}>
-                  {a.title}
-                </h2>
-                <p className="mt-6 border-l-2 pl-5 text-xl leading-relaxed" style={{ borderColor: CRIMSON, color: INK }}>
-                  {a.lede}
-                </p>
-                <div className="mt-6 space-y-4 text-base leading-relaxed" style={{ color: MUTED }}>
-                  {a.body.map((p, j) => (
-                    <p key={j}>{p}</p>
-                  ))}
-                </div>
-              </div>
-            </article>
-          ))}
-
-          {/* Colophon / contact */}
-          <section id="colophon" className="border-t pt-12" style={{ borderColor: INK }}>
-            <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 md:col-span-3">
-                <div
-                  className="text-[10px] uppercase tracking-widest"
-                  style={{ color: CRIMSON, fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  Colophon
-                </div>
-              </div>
-              <div className="col-span-12 md:col-span-9">
-                <h2 className="text-3xl font-semibold leading-tight md:text-4xl">
-                  Correspondence
-                </h2>
-                <p className="mt-4 max-w-2xl text-lg leading-relaxed" style={{ color: MUTED }}>
-                  Enquiries, scoping calls, and NDAs — direct to the desk. Written
-                  proposals within forty-eight hours.
-                </p>
-                <div
-                  className="mt-8 flex flex-wrap gap-6 text-sm"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  <a href="mailto:look@f1cu.space" className="underline decoration-1 underline-offset-4" style={{ color: CRIMSON }}>
-                    look@f1cu.space
-                  </a>
-                  <a href="https://github.com/ficu71" target="_blank" rel="noreferrer" className="underline decoration-1 underline-offset-4" style={{ color: INK }}>
-                    github.com/ficu71
-                  </a>
-                  <span style={{ color: MUTED }}>PGP on request</span>
-                </div>
-              </div>
-            </div>
-          </section>
-        </main>
       </div>
 
-      <footer
-        className="border-t py-6 text-center text-[11px] uppercase tracking-widest"
-        style={{ borderColor: INK, fontFamily: "'JetBrains Mono', monospace", color: MUTED }}
+      {/* HUD status */}
+      <div className="pointer-events-none absolute right-6 top-6 z-20 font-mono text-[11px] text-cyan-300/70">
+        <div>status: <span className="text-emerald-400">online</span></div>
+        <div>nodes : {PANELS.length}</div>
+        <div>focus : {active ? active.id : "—"}</div>
+      </div>
+
+      {/* Bottom detail panel when active */}
+      {active && (
+        <div className="absolute inset-x-0 bottom-0 z-20 border-t border-cyan-500/30 bg-black/70 px-6 py-4 backdrop-blur">
+          <div className="mx-auto flex max-w-4xl items-start justify-between gap-6 font-mono">
+            <div>
+              <div
+                className="text-[11px] uppercase tracking-[0.3em]"
+                style={{ color: active.color }}
+              >
+                node // {active.id}
+              </div>
+              <div className="mt-2 space-y-1 text-sm text-slate-200">
+                {active.body.map((l, i) => (
+                  <div key={i}>{l}</div>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setActiveId(null)}
+              className="shrink-0 border border-cyan-500/40 px-3 py-1 text-[11px] uppercase tracking-widest text-cyan-300 transition hover:bg-cyan-500/10"
+            >
+              close
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ClientOnly
+        fallback={
+          <div className="flex h-screen items-center justify-center font-mono text-cyan-300/60">
+            booting holomesh...
+          </div>
+        }
       >
-        © {new Date().getFullYear()} f1cu.space · set in Fraunces & JetBrains Mono
-      </footer>
+        <Canvas
+          camera={{ position: [0, 1.2, 6.5], fov: 55 }}
+          className="!h-screen !w-screen"
+          dpr={[1, 2]}
+        >
+          <Suspense fallback={null}>
+            <Scene activeId={activeId} setActiveId={setActiveId} />
+          </Suspense>
+        </Canvas>
+      </ClientOnly>
     </div>
   );
 }
