@@ -579,7 +579,7 @@ function TerminalPage() {
           {BANNERS[bannerStyle].join("\n")}
         </pre>
         <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
-          <span>logo {bannerStyle + 1}/{BANNERS.length}</span>
+          <span>logo {bannerStyle >= VISIBLE_BANNERS ? "hidden" : `${bannerStyle + 1}/${VISIBLE_BANNERS}`}</span>
           <span>·</span>
           <button
             type="button"
@@ -591,7 +591,7 @@ function TerminalPage() {
           <span>·</span>
           <button
             type="button"
-            onClick={() => setBannerStyle((p) => (p + 1) % BANNERS.length)}
+            onClick={() => setBannerStyle((p) => (p + 1) % VISIBLE_BANNERS)}
             className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
           >
             next style
