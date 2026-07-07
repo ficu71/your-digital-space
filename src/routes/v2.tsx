@@ -569,12 +569,12 @@ function TerminalPage() {
         <pre
           className={`whitespace-pre break-words ${
             bannerStyle >= VISIBLE_BANNERS
-              ? "text-green-900 opacity-30 transition-all duration-700 hover:text-green-400 hover:opacity-100"
+              ? "text-green-900 opacity-0 transition-all duration-700 hover:text-green-400 hover:opacity-100"
               : "text-green-300"
           } ${
-            bannerAnim === "pulse"
+            bannerAnim === "pulse" && bannerStyle < VISIBLE_BANNERS
               ? "f1cu-banner-pulse"
-              : bannerAnim === "flicker"
+              : bannerAnim === "flicker" && bannerStyle < VISIBLE_BANNERS
                 ? "f1cu-banner-flicker"
                 : ""
           }`}
