@@ -522,10 +522,61 @@ function TerminalPage() {
         <span><kbd className="text-green-300">help</kbd> for commands</span>
       </div>
 
+      <style>{`
+        @keyframes f1cu-pulse {
+          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35); }
+          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.9), 0 0 28px rgba(34,197,94,0.35); }
+        }
+        @keyframes f1cu-flicker {
+          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.7); }
+          20%, 50%                     { opacity: 0.4; text-shadow: none; }
+          22%                          { opacity: 0.85; }
+          80%                          { opacity: 0.6; }
+        }
+        .f1cu-banner-pulse   { animation: f1cu-pulse 2.4s ease-in-out infinite; }
+        .f1cu-banner-flicker { animation: f1cu-flicker 3.6s steps(1, end) infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .f1cu-banner-pulse, .f1cu-banner-flicker { animation: none; }
+        }
+      `}</style>
+
       <div
         ref={scrollRef}
         className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16"
       >
+        <pre
+          className={`whitespace-pre break-words text-green-300 ${
+            bannerAnim === "pulse"
+              ? "f1cu-banner-pulse"
+              : bannerAnim === "flicker"
+                ? "f1cu-banner-flicker"
+                : ""
+          }`}
+          aria-hidden="true"
+        >
+          {BANNERS[bannerStyle].join("\n")}
+        </pre>
+        <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
+          <span>logo {bannerStyle + 1}/{BANNERS.length}</span>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setBannerAnim((p) => ANIM_ORDER[(ANIM_ORDER.indexOf(p) + 1) % ANIM_ORDER.length])}
+            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+          >
+            anim: {bannerAnim}
+          </button>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setBannerStyle((p) => (p + 1) % BANNERS.length)}
+            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+          >
+            next style
+          </button>
+          <span className="ml-1 text-green-800">(or use `logo` / `anim` commands)</span>
+        </div>
+
         <pre className="whitespace-pre-wrap break-words">
           {lines.filter(Boolean).map((l, i) => (
             <div key={i} className={colorFor(l.kind)}>
