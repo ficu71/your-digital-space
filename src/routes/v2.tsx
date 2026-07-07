@@ -471,21 +471,12 @@ function TerminalPage() {
               ref={inputRef}
               autoFocus
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                setCursor(e.target.selectionStart ?? e.target.value.length);
-              }}
-              onKeyUp={(e) => setCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
-              onClick={(e) => setCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKey}
               spellCheck={false}
               autoComplete="off"
-              className="flex-1 bg-transparent text-green-200 caret-transparent outline-none"
+              className="flex-1 bg-transparent text-green-200 caret-green-400 outline-none"
               aria-label="terminal input"
-            />
-            <span
-              className="ml-0.5 inline-block h-4 w-2 animate-pulse bg-green-400"
-              style={{ marginLeft: `${-Math.max(0, input.length - cursor) * 0.6}ch` }}
             />
           </div>
         )}
