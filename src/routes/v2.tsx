@@ -187,7 +187,9 @@ const COMMANDS: Record<string, CommandDef> = {
   logo: {
     desc: "cycle ASCII logo style (logo 0|1|2)",
     run: (args) => {
-      const n = args[0] ? parseInt(args[0], 10) : -1;
+      const arg = (args[0] ?? "").toLowerCase();
+      const n =
+        arg === "fuck" || arg === "nigga" ? BANNERS.length - 1 : arg ? parseInt(arg, 10) : -1;
       window.dispatchEvent(new CustomEvent("f1cu:logo", { detail: { n } }));
       return ["logo style updated."];
     },
