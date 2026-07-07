@@ -456,7 +456,7 @@ function TerminalPage() {
         className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16"
       >
         <pre className="whitespace-pre-wrap break-words">
-          {lines.map((l, i) => (
+          {lines.filter(Boolean).map((l, i) => (
             <div key={i} className={colorFor(l.kind)}>
               {l.kind === "in" ? (
                 <>
@@ -469,6 +469,7 @@ function TerminalPage() {
               )}
             </div>
           ))}
+
         </pre>
 
         {booted && (
