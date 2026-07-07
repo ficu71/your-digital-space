@@ -231,7 +231,6 @@ function TerminalPage() {
 
   // Boot sequence
   useEffect(() => {
-    let i = 0;
     const boot: Line[] = [
       { kind: "sys", text: "[  ok  ] initializing shell..." },
       { kind: "sys", text: "[  ok  ] loading opsec profile" },
@@ -240,16 +239,25 @@ function TerminalPage() {
       ...BANNER.map((t) => ({ kind: "sys" as const, text: t })),
       { kind: "sys", text: "" },
     ];
+    let i = 0;
+    let cancelled = false;
+    setLines([]);
     const timer = setInterval(() => {
-      setLines((prev) => [...prev, boot[i]]);
+      if (cancelled) return;
+      const next = boot[i];
       i++;
+      if (next) setLines((prev) => [...prev, next]);
       if (i >= boot.length) {
         clearInterval(timer);
         setBooted(true);
       }
     }, 50);
-    return () => clearInterval(timer);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, []);
+
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
