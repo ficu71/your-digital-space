@@ -220,7 +220,7 @@ const COMMANDS: Record<string, CommandDef> = {
 function TerminalPage() {
   const [lines, setLines] = useState<Line[]>([]);
   const [input, setInput] = useState("");
-  const [cursor, setCursor] = useState(0);
+  
   const [history, setHistory] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState<number>(-1);
   const [booted, setBooted] = useState(false);
