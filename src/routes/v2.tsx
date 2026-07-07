@@ -74,7 +74,7 @@ const BANNER_FOOTER = [
   "type 'help' to list commands, or press Tab to autocomplete.",
 ];
 
-type BannerAnim = "pulse" | "flicker" | "off";
+const VISIBLE_BANNERS = 3; // styles 0-2 are visible; 3 is hidden
 const ANIM_ORDER: BannerAnim[] = ["pulse", "flicker", "off"];
 
 
