@@ -23,19 +23,41 @@ export const Route = createFileRoute("/v2")({
   component: TerminalPage,
 });
 
-type Line = { kind: "in" | "out" | "sys" | "err" | "hint"; text: string };
+type Line = { kind: "in" | "out" | "sys" | "err" | "hint" | "banner"; text: string };
 
-const BANNER = [
-  " ██████╗ ██╗    ██████╗██╗   ██╗",
-  " ██╔════╝███║  ██╔════╝██║   ██║",
-  " ██████╗ ╚██║  ██║     ██║   ██║",
-  " ██╔═══╝  ██║  ██║     ██║   ██║",
-  " ██║      ██║  ╚██████╗╚██████╔╝",
-  " ╚═╝      ╚═╝   ╚═════╝ ╚═════╝ ",
+const BANNERS: string[][] = [
+  // 0 — ANSI Shadow
+  [
+    "███████╗ ██╗    ██████╗██╗   ██╗",
+    "██╔════╝███║   ██╔════╝██║   ██║",
+    "█████╗  ╚██║   ██║     ██║   ██║",
+    "██╔══╝   ██║   ██║     ██║   ██║",
+    "██║      ██║   ╚██████╗╚██████╔╝",
+    "╚═╝      ╚═╝    ╚═════╝ ╚═════╝ ",
+  ],
+  // 1 — Block outline
+  [
+    "┏━╸ ╻   ┏━╸ ╻ ╻",
+    "┣╸  ┃   ┃   ┃ ┃",
+    "╹   ╹   ┗━╸ ┗━┛",
+  ],
+  // 2 — Small
+  [
+    " __ _   ___  _   _ ",
+    "/ _/ | / __|| | | |",
+    "\\_||_| \\___||_|_|_|",
+  ],
+];
+
+const BANNER_FOOTER = [
   "",
   "f1cu.shell v2.1.0 — offensive security // iOS // automation",
   "type 'help' to list commands, or press Tab to autocomplete.",
 ];
+
+type BannerAnim = "pulse" | "flicker" | "off";
+const ANIM_ORDER: BannerAnim[] = ["pulse", "flicker", "off"];
+
 
 type CommandDef = {
   desc: string;
@@ -139,8 +161,29 @@ const COMMANDS: Record<string, CommandDef> = {
     run: (args) => [args.join(" ")],
   },
   banner: {
-    desc: "reprint banner",
-    run: () => BANNER,
+    desc: "reprint banner (static copy)",
+    run: () => [...BANNERS[0], ...BANNER_FOOTER],
+  },
+  logo: {
+    desc: "cycle ASCII logo style (logo 0|1|2)",
+    run: (args) => {
+      const n = args[0] ? parseInt(args[0], 10) : -1;
+      window.dispatchEvent(new CustomEvent("f1cu:logo", { detail: { n } }));
+      return ["logo style updated."];
+    },
+  },
+  anim: {
+    desc: "logo animation: pulse | flicker | off",
+    run: (args) => {
+      const mode = (args[0] ?? "").toLowerCase();
+      if (mode && !["pulse", "flicker", "off"].includes(mode)) {
+        return ["usage: anim pulse|flicker|off"];
+      }
+      window.dispatchEvent(
+        new CustomEvent("f1cu:anim", { detail: { mode: mode || null } }),
+      );
+      return [`logo animation: ${mode || "cycled"}`];
+    },
   },
   sudo: {
     desc: "try to gain root",
@@ -226,8 +269,34 @@ function TerminalPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState<number>(-1);
   const [booted, setBooted] = useState(false);
+  const [bannerStyle, setBannerStyle] = useState(0);
+  const [bannerAnim, setBannerAnim] = useState<BannerAnim>("pulse");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onLogo = (e: Event) => {
+      const detail = (e as CustomEvent<{ n: number }>).detail;
+      setBannerStyle((prev) => {
+        if (detail?.n >= 0 && detail.n < BANNERS.length) return detail.n;
+        return (prev + 1) % BANNERS.length;
+      });
+    };
+    const onAnim = (e: Event) => {
+      const detail = (e as CustomEvent<{ mode: BannerAnim | null }>).detail;
+      setBannerAnim((prev) => {
+        if (detail?.mode) return detail.mode;
+        const i = ANIM_ORDER.indexOf(prev);
+        return ANIM_ORDER[(i + 1) % ANIM_ORDER.length];
+      });
+    };
+    window.addEventListener("f1cu:logo", onLogo);
+    window.addEventListener("f1cu:anim", onAnim);
+    return () => {
+      window.removeEventListener("f1cu:logo", onLogo);
+      window.removeEventListener("f1cu:anim", onAnim);
+    };
+  }, []);
 
   const commandNames = useMemo(() => Object.keys(COMMANDS).sort(), []);
 
@@ -238,7 +307,7 @@ function TerminalPage() {
       { kind: "sys", text: "[  ok  ] loading opsec profile" },
       { kind: "sys", text: "[  ok  ] mounting /home/f1cu" },
       { kind: "sys", text: "" },
-      ...BANNER.map((t) => ({ kind: "sys" as const, text: t })),
+      ...BANNER_FOOTER.map((t) => ({ kind: "sys" as const, text: t })),
       { kind: "sys", text: "" },
     ];
     let i = 0;
@@ -453,10 +522,61 @@ function TerminalPage() {
         <span><kbd className="text-green-300">help</kbd> for commands</span>
       </div>
 
+      <style>{`
+        @keyframes f1cu-pulse {
+          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35); }
+          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.9), 0 0 28px rgba(34,197,94,0.35); }
+        }
+        @keyframes f1cu-flicker {
+          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.7); }
+          20%, 50%                     { opacity: 0.4; text-shadow: none; }
+          22%                          { opacity: 0.85; }
+          80%                          { opacity: 0.6; }
+        }
+        .f1cu-banner-pulse   { animation: f1cu-pulse 2.4s ease-in-out infinite; }
+        .f1cu-banner-flicker { animation: f1cu-flicker 3.6s steps(1, end) infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .f1cu-banner-pulse, .f1cu-banner-flicker { animation: none; }
+        }
+      `}</style>
+
       <div
         ref={scrollRef}
         className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16"
       >
+        <pre
+          className={`whitespace-pre break-words text-green-300 ${
+            bannerAnim === "pulse"
+              ? "f1cu-banner-pulse"
+              : bannerAnim === "flicker"
+                ? "f1cu-banner-flicker"
+                : ""
+          }`}
+          aria-hidden="true"
+        >
+          {BANNERS[bannerStyle].join("\n")}
+        </pre>
+        <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
+          <span>logo {bannerStyle + 1}/{BANNERS.length}</span>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setBannerAnim((p) => ANIM_ORDER[(ANIM_ORDER.indexOf(p) + 1) % ANIM_ORDER.length])}
+            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+          >
+            anim: {bannerAnim}
+          </button>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setBannerStyle((p) => (p + 1) % BANNERS.length)}
+            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+          >
+            next style
+          </button>
+          <span className="ml-1 text-green-800">(or use `logo` / `anim` commands)</span>
+        </div>
+
         <pre className="whitespace-pre-wrap break-words">
           {lines.filter(Boolean).map((l, i) => (
             <div key={i} className={colorFor(l.kind)}>
