@@ -26,7 +26,16 @@ export const Route = createFileRoute("/v2")({
 type Line = { kind: "in" | "out" | "sys" | "err" | "hint" | "banner"; text: string };
 
 const BANNERS: string[][] = [
-  // 0 — ANSI Shadow
+  // 0 — Cosmike2
+  [
+    " .::::. :.                 ...::::: :. ",
+    " ;;  `'.;;                 '''``;;'.;; ",
+    "=[[,,== [[,cc[[[cc.  ,c  ,     .['  [[ ",
+    "`$$$\"`` $$$$$       $$'  $$$ ,$$'   $$ ",
+    " 888    8888b    ,o,888   888888    88 ",
+    " \"MM,  MMMM\"YUMMMMP\" \"YUM\" MPMMM   MMMM",
+  ],
+  // 1 — ANSI Shadow
   [
     "███████╗ ██╗    ██████╗██╗   ██╗",
     "██╔════╝███║   ██╔════╝██║   ██║",
@@ -35,14 +44,14 @@ const BANNERS: string[][] = [
     "██║      ██║   ╚██████╗╚██████╔╝",
     "╚═╝      ╚═╝    ╚═════╝ ╚═════╝ ",
   ],
-  // 1 — Slant
+  // 2 — Slant
   [
     "   ____  ___                ",
     "  / __/ <  /_____  __ __    ",
     " / _/   / // ___/ / // /    ",
     "/_/    /_/ \\___/  \\_,_/     ",
   ],
-  // 2 — Small Slant
+  // 3 — Small Slant
   [
     "   ____ ___             ",
     "  / _// <  / ______ __ ",
