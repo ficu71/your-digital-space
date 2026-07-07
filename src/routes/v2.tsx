@@ -75,6 +75,7 @@ const BANNER_FOOTER = [
 ];
 
 const VISIBLE_BANNERS = 3; // styles 0-2 are visible; 3 is hidden
+type BannerAnim = "pulse" | "flicker" | "off";
 const ANIM_ORDER: BannerAnim[] = ["pulse", "flicker", "off"];
 
 
