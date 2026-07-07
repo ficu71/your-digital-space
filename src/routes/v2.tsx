@@ -269,8 +269,34 @@ function TerminalPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState<number>(-1);
   const [booted, setBooted] = useState(false);
+  const [bannerStyle, setBannerStyle] = useState(0);
+  const [bannerAnim, setBannerAnim] = useState<BannerAnim>("pulse");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onLogo = (e: Event) => {
+      const detail = (e as CustomEvent<{ n: number }>).detail;
+      setBannerStyle((prev) => {
+        if (detail?.n >= 0 && detail.n < BANNERS.length) return detail.n;
+        return (prev + 1) % BANNERS.length;
+      });
+    };
+    const onAnim = (e: Event) => {
+      const detail = (e as CustomEvent<{ mode: BannerAnim | null }>).detail;
+      setBannerAnim((prev) => {
+        if (detail?.mode) return detail.mode;
+        const i = ANIM_ORDER.indexOf(prev);
+        return ANIM_ORDER[(i + 1) % ANIM_ORDER.length];
+      });
+    };
+    window.addEventListener("f1cu:logo", onLogo);
+    window.addEventListener("f1cu:anim", onAnim);
+    return () => {
+      window.removeEventListener("f1cu:logo", onLogo);
+      window.removeEventListener("f1cu:anim", onAnim);
+    };
+  }, []);
 
   const commandNames = useMemo(() => Object.keys(COMMANDS).sort(), []);
 
