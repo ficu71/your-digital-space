@@ -520,7 +520,7 @@ function TerminalPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black font-mono text-[13px] leading-relaxed text-green-400 md:text-sm">
+    <div className="relative min-h-screen overflow-hidden bg-black font-terminal text-[13px] leading-relaxed text-green-400 md:text-sm">
       <VersionSwitcher active="v2" tone="terminal" />
 
       {/* scanlines */}
@@ -531,8 +531,13 @@ function TerminalPage() {
             "repeating-linear-gradient(0deg, rgba(0,255,120,0.6) 0, rgba(0,255,120,0.6) 1px, transparent 1px, transparent 3px)",
         }}
       />
+      {/* CRT flicker overlay */}
+      <div className="pointer-events-none fixed inset-0 z-10 f1cu-flicker-overlay" />
+      {/* moving scanline */}
+      <div className="pointer-events-none fixed top-0 left-0 right-0 z-10 h-24 f1cu-scanline" />
       {/* vignette */}
       <div className="pointer-events-none fixed inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.9)_100%)]" />
+
 
       {/* hint bar */}
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-20 border-t border-green-900/60 bg-black/70 px-4 py-1.5 text-[11px] text-green-600 backdrop-blur">
