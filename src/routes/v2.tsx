@@ -520,7 +520,7 @@ function TerminalPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black font-mono text-[13px] leading-relaxed text-green-400 md:text-sm">
+    <div className="relative min-h-screen overflow-hidden bg-black font-terminal text-[13px] leading-relaxed text-green-400 md:text-sm">
       <VersionSwitcher active="v2" tone="terminal" />
 
       {/* scanlines */}
@@ -531,8 +531,13 @@ function TerminalPage() {
             "repeating-linear-gradient(0deg, rgba(0,255,120,0.6) 0, rgba(0,255,120,0.6) 1px, transparent 1px, transparent 3px)",
         }}
       />
+      {/* CRT flicker overlay */}
+      <div className="pointer-events-none fixed inset-0 z-10 f1cu-flicker-overlay" />
+      {/* moving scanline */}
+      <div className="pointer-events-none fixed top-0 left-0 right-0 z-10 h-24 f1cu-scanline" />
       {/* vignette */}
       <div className="pointer-events-none fixed inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.9)_100%)]" />
+
 
       {/* hint bar */}
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-20 border-t border-green-900/60 bg-black/70 px-4 py-1.5 text-[11px] text-green-600 backdrop-blur">
@@ -546,11 +551,11 @@ function TerminalPage() {
 
       <style>{`
         @keyframes f1cu-pulse {
-          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35); }
-          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.9), 0 0 28px rgba(34,197,94,0.35); }
+          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35), 0 0 8px rgba(34,197,94,0.15); }
+          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.95), 0 0 28px rgba(34,197,94,0.55), 0 0 56px rgba(34,197,94,0.25); }
         }
         @keyframes f1cu-flicker {
-          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.7); }
+          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.85), 0 0 16px rgba(34,197,94,0.45); }
           20%, 50%                     { opacity: 0.4; text-shadow: none; }
           22%                          { opacity: 0.85; }
           80%                          { opacity: 0.6; }
@@ -562,82 +567,87 @@ function TerminalPage() {
         }
       `}</style>
 
+
       <div
         ref={scrollRef}
-        className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16"
+        className="relative z-20 mx-auto h-screen max-w-4xl overflow-y-auto px-6 py-10 pb-16 f1cu-boot-up"
       >
-        <pre
-          className={`whitespace-pre break-words ${
-            bannerStyle >= VISIBLE_BANNERS
-              ? "text-green-900 opacity-0 hover:text-green-400 hover:opacity-100"
-              : "text-green-300"
-          } ${
-            bannerAnim === "pulse" && bannerStyle < VISIBLE_BANNERS
-              ? "f1cu-banner-pulse"
-              : bannerAnim === "flicker" && bannerStyle < VISIBLE_BANNERS
-                ? "f1cu-banner-flicker"
-                : ""
-          }`}
-          aria-hidden="true"
-        >
-          {BANNERS[bannerStyle].join("\n")}
-        </pre>
-        <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
-          <span>logo {bannerStyle >= VISIBLE_BANNERS ? "hidden" : `${bannerStyle + 1}/${VISIBLE_BANNERS}`}</span>
-          <span>·</span>
-          <button
-            type="button"
-            onClick={() => setBannerAnim((p) => ANIM_ORDER[(ANIM_ORDER.indexOf(p) + 1) % ANIM_ORDER.length])}
-            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+        <div className="crt-text f1cu-glitch">
+          <pre
+            className={`whitespace-pre break-words ${
+              bannerStyle >= VISIBLE_BANNERS
+                ? "text-green-900 opacity-0 hover:text-green-400 hover:opacity-100"
+                : "text-green-300"
+            } ${
+              bannerAnim === "pulse" && bannerStyle < VISIBLE_BANNERS
+                ? "f1cu-banner-pulse"
+                : bannerAnim === "flicker" && bannerStyle < VISIBLE_BANNERS
+                  ? "f1cu-banner-flicker"
+                  : ""
+            }`}
+            aria-hidden="true"
           >
-            anim: {bannerAnim}
-          </button>
-          <span>·</span>
-          <button
-            type="button"
-            onClick={() => setBannerStyle((p) => (p + 1) % VISIBLE_BANNERS)}
-            className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
-          >
-            next style
-          </button>
-          <span className="ml-1 text-green-800">(or use `logo` / `anim` commands)</span>
-        </div>
-
-        <pre className="whitespace-pre-wrap break-words">
-          {lines.filter(Boolean).map((l, i) => (
-            <div key={i} className={colorFor(l.kind)}>
-              {l.kind === "in" ? (
-                <>
-                  <span className="text-green-500">f1cu@shell</span>
-                  <span className="text-green-700">:~$ </span>
-                  {l.text}
-                </>
-              ) : (
-                l.text
-              )}
-            </div>
-          ))}
-
-        </pre>
-
-        {booted && (
-          <div className="mt-1 flex items-center">
-            <span className="text-green-500">f1cu@shell</span>
-            <span className="text-green-700">:~$&nbsp;</span>
-            <input
-              ref={inputRef}
-              autoFocus
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKey}
-              spellCheck={false}
-              autoComplete="off"
-              className="flex-1 bg-transparent text-green-200 caret-green-400 outline-none"
-              aria-label="terminal input"
-            />
+            {BANNERS[bannerStyle].join("\n")}
+          </pre>
+          <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-[11px] text-green-700">
+            <span>logo {bannerStyle >= VISIBLE_BANNERS ? "hidden" : `${bannerStyle + 1}/${VISIBLE_BANNERS}`}</span>
+            <span>·</span>
+            <button
+              type="button"
+              onClick={() => setBannerAnim((p) => ANIM_ORDER[(ANIM_ORDER.indexOf(p) + 1) % ANIM_ORDER.length])}
+              className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+            >
+              anim: {bannerAnim}
+            </button>
+            <span>·</span>
+            <button
+              type="button"
+              onClick={() => setBannerStyle((p) => (p + 1) % VISIBLE_BANNERS)}
+              className="text-green-500 underline underline-offset-2 transition-colors hover:text-green-300"
+            >
+              next style
+            </button>
+            <span className="ml-1 text-green-800">(or use `logo` / `anim` commands)</span>
           </div>
-        )}
+
+          <pre className="whitespace-pre-wrap break-words">
+            {lines.filter(Boolean).map((l, i) => (
+              <div key={i} className={`${colorFor(l.kind)} f1cu-boot-line`}>
+                {l.kind === "in" ? (
+                  <>
+                    <span className="text-green-500">f1cu@shell</span>
+                    <span className="text-green-700">:~$ </span>
+                    {l.text}
+                  </>
+                ) : (
+                  l.text
+                )}
+              </div>
+            ))}
+
+          </pre>
+
+          {booted && (
+            <div className="mt-1 flex items-center">
+              <span className="text-green-500">f1cu@shell</span>
+              <span className="text-green-700">:~$&nbsp;</span>
+              <input
+                ref={inputRef}
+                autoFocus
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKey}
+                spellCheck={false}
+                autoComplete="off"
+                className="flex-1 bg-transparent text-green-200 caret-transparent outline-none"
+                aria-label="terminal input"
+              />
+              <span className="ml-0.5 inline-block h-[1.1em] w-[0.6em] bg-[var(--terminal-green)] f1cu-cursor-blink" />
+            </div>
+          )}
+        </div>
       </div>
+
     </div>
   );
 }
