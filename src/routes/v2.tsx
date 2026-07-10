@@ -551,11 +551,11 @@ function TerminalPage() {
 
       <style>{`
         @keyframes f1cu-pulse {
-          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35); }
-          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.9), 0 0 28px rgba(34,197,94,0.35); }
+          0%, 100% { opacity: 0.72; text-shadow: 0 0 4px rgba(34,197,94,0.35), 0 0 8px rgba(34,197,94,0.15); }
+          50%      { opacity: 1;    text-shadow: 0 0 14px rgba(34,197,94,0.95), 0 0 28px rgba(34,197,94,0.55), 0 0 56px rgba(34,197,94,0.25); }
         }
         @keyframes f1cu-flicker {
-          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.7); }
+          0%, 19%, 21%, 49%, 51%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(34,197,94,0.85), 0 0 16px rgba(34,197,94,0.45); }
           20%, 50%                     { opacity: 0.4; text-shadow: none; }
           22%                          { opacity: 0.85; }
           80%                          { opacity: 0.6; }
@@ -566,6 +566,7 @@ function TerminalPage() {
           .f1cu-banner-pulse, .f1cu-banner-flicker { animation: none; }
         }
       `}</style>
+
 
       <div
         ref={scrollRef}
