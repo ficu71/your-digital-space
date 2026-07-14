@@ -61,6 +61,7 @@ const PANELS: Panel[] = [
     title: "// projects",
     color: "#f472b6",
     body: [
+      "bunq API research — prompt injection + SEPA flows",
       "EU fintech red team — 2025 [classified]",
       "iOS runtime hardening — 2025 [classified]",
       "recon platform — python + fastapi + llm",

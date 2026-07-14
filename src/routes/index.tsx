@@ -313,6 +313,16 @@ function Projects() {
       link: `${GITHUB}/apple-kombajn`,
     },
     {
+      name: "bunq API security research",
+      subtitle: "Independent adversarial testing",
+      description:
+        "Research into AI-assisted API flows, prompt-injection behavior, and SEPA transaction logic. Sensitive reproduction details intentionally withheld.",
+      tech: ["API security", "Prompt injection", "SEPA flows"],
+      icon: <Shield className="h-5 w-5" />,
+      link: "https://www.bunq.com/en-us/about/security",
+      action: "Security context",
+    },
+    {
       name: "CVE Research & writeups",
       subtitle: "Active exploitation research",
       description:
@@ -330,7 +340,7 @@ function Projects() {
       title="Open source & frameworks."
       intro="Tools built for red team operations and security research. Production-ready, heavily tested."
     >
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {projects.map((p) => (
           <a
             key={p.name}
@@ -358,7 +368,7 @@ function Projects() {
               ))}
             </div>
             <div className="flex items-center gap-1 text-sm font-medium text-red-600 transition-colors group-hover:text-red-500">
-              View <ArrowUpRight className="h-3.5 w-3.5" />
+              {p.action ?? "View"} <ArrowUpRight className="h-3.5 w-3.5" />
             </div>
           </a>
         ))}

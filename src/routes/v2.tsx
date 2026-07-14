@@ -26,44 +26,26 @@ export const Route = createFileRoute("/v2")({
 type Line = { kind: "in" | "out" | "sys" | "err" | "hint" | "banner"; text: string };
 
 const BANNERS: string[][] = [
-  // 0 — Block
+  // 0 — Primary wordmark
   [
-    "▀ ▄▄██████████ ▀ ▄██████ ▀ ▄▄██████████ ██████ ▓ █████ ██████████▄▄ ▀█▀ ▄██████ ",
-    " ▓▓▓▓▓ ▄ ▓▓▓▓▓ ▄▓▓▓▓▓▓▓▓  ▓▓▓▓▓ ▄ ▓▓▓▓▓ █▓▓▓▓▓ ▓ ▓▓▓▓█ ▓▓▓▓▓ ▄ ▓▓▓▓▓  ▄▓▓▓▓▓▓▓▓ ",
-    "▒▒▒▒▒▒ ▓ ▒▒▒▒▒ ▄▄ ▒▒▒▒▒▒ ▒▒▒▒▒▒ ▓ ▒▒▒▒▒ ▒▒▒▒▒▒ ▓ ▒▒▒▒▒ ▒▒▒▒▒ ▓ ▒▒▒▒▒▒ ▄▄ ▒▒▒▒▒▒ ",
-    "░░░░▓░ ▀■▄▄▄▄▄▄▓▓ ░░░░░░ ░░░░▓░ ▓▄▄▄▄▄▄▄░░░░▓░ ▓ ░░░░░ ▄▄▄▄▄■▀ ░▓░░░░ ▓▓ ░░░░░░ ",
-    "███▓▓███ ▓▓▓▓▓▓▓▓ ██████ ███▓▓█ ▓▓▓▓▓▓▓▓███▓▓█ ▓ █▓███ ▓▓▓▓▓ ███▓▓███ ▓▓ ██████ ",
-    "██▓▓▓█ ▄▄▒▓▓▓▓▓▓▓ ██████ ██▓▓▓█ ▓ ▄▄▄▄▄ ██▓▓▓█ ▓ █▓▓██ ▓▓▓▓▒▄▄ █▓▓▓██ ▓▓ ██████ ",
-    "░▓▓▓▓░ ▓▓▓▓▓▓▓▓▓▓ ░▓▓▓▓░ ░▓▓▓▓░ ▓ ░▓▓▓░ ░▓▓▓▓░ ▓ ░▓▓▓░ ▓▓▓▓▓▓▓ ░▓▓▓▓░ ▓▓ ░▓▓▓▓░ ",
-    "▒▒▒▒▒▒ ▓▓▓▓▓▓▓▓▓▓ ▒▒▒▒▒▒ ▒▒▓▓▓▒ ▓ ▒▒▒▒▒ ▒▒▓▓▓▒ ▓ ▒▓▓▒▒ ▓▓▓▓▓▓▓ ▒▒▒▒▒▒ ▓▓ ▒▒▒▒▒▒ ",
-    "▓░░░░▓ ▓▓▓▓▓▓▓▓▓▓ ▓░░░░▓  ▓▓▓▓▓ ▀ ▓░░░▓  ▓▓▓▓▓ ▀ ▓▓▓▓░ ▓▓▓▓▓▓▓ ▓░░░░▓ ▓▓ ▓░░░░▓ ",
-    "██████ ▓▓▓▓▓▓▓▓▓ ▄██████▄▄ ▀▀██████████ ▄ ▀▀██████▀▀ ▄█▓▓▓▓▓▓▓ ██████ ▓ ▄██████▄",
+    "███████╗  ██╗  ██████╗ ██╗   ██╗",
+    "██╔════╝ ███║ ██╔════╝ ██║   ██║",
+    "█████╗   ╚██║ ██║      ██║   ██║",
+    "██╔══╝    ██║ ██║      ██║   ██║",
+    "██║       ██║ ╚██████╗ ╚██████╔╝",
+    "╚═╝       ╚═╝  ╚═════╝  ╚═════╝ ",
   ],
-  // 1 — Block Outline
+  // 1 — Operator card
   [
-    "   ▄▄█▄     ▄░      ▄    ▄    ▄      ▄▄▄▄     ▄░",
-    " ▄░▀ ▓▒░▀ ▄░▒▒  ▄░▓▀▒░▀  ░▒▌  ▒█▄  ▀░▓▀ ▓▒▄ ▄░▒▒",
-    "░▒▓  ░▀    ▒▓█ ░▒▓▌ ▀    ▒▓█  ▓█▒▌   ▀  ▓░▀  ▒▓█",
-    "▓▓█▄█▄     ▓█░ ▓▓█  ▄    ▓██  ██░▌    ▄▒▀    ▓█░",
-    "░██ ▀      ▒░▀ ▐██  ▓█▄  ▀░█ ▄█░▀   ▄░▀      ▒░▀",
-    " ▀█        ▀    ▀░▄▀▒░▀▀   ▀▀▀               ▀  ",
-    "                    ▀",
+    "╭──────────────────────────────────────────╮",
+    "│  f1cu_                                   │",
+    "│  OFFENSIVE SECURITY / INDEPENDENT R&D    │",
+    "╰──────────────────────────────────────────╯",
   ],
-  // 2 — Cosmike2
+  // 2 — Shell prompt
   [
-    " .::::. :.                 ...::::: :. ",
-    " ;;  `'.;;                 '''``;;'.;; ",
-    "=[[,,== [[,cc[[[cc.  ,c  ,     .['  [[ ",
-    "`$$$\"`` $$$$$       $$'  $$$ ,$$'   $$ ",
-    " 888    8888b    ,o,888   888888    88 ",
-    " \"MM,  MMMM\"YUMMMMP\" \"YUM\" MPMMM   MMMM",
-  ],
-  // 3 — Hidden (easter egg)
-  [
-    "",
-    "  ░░░░░░░░░░░░░░░░░░░░░░░░",
-    "  ░  ᶠᶸᶜᵏᵧₒᵤ !𝓷𝓲𝓰𝓰𝓪  ░",
-    "  ░░░░░░░░░░░░░░░░░░░░░░░░",
+    "[f1cu@ops]─[~]",
+    "└─$ offensive_security --quiet --precise",
   ],
 ];
 
@@ -74,7 +56,7 @@ const BANNER_FOOTER = [
   "type 'help' to list commands, or press Tab to autocomplete.",
 ];
 
-const VISIBLE_BANNERS = 3; // styles 0-2 are visible; 3 is hidden
+const VISIBLE_BANNERS = BANNERS.length;
 type BannerAnim = "pulse" | "flicker" | "off";
 const ANIM_ORDER: BannerAnim[] = ["pulse", "flicker", "off"];
 
@@ -131,6 +113,7 @@ const COMMANDS: Record<string, CommandDef> = {
   projects: {
     desc: "selected work",
     run: () => [
+      "[ research   ] bunq API — independent prompt-injection & SEPA flow testing",
       "[ classified ] red team engagement — EU fintech, 2025",
       "[ classified ] ios runtime hardening review — mobile-first startup, 2025",
       "[ public     ] internal recon platform — python + fastapi + llm triage",
@@ -188,8 +171,10 @@ const COMMANDS: Record<string, CommandDef> = {
     desc: "cycle ASCII logo style (logo 0|1|2)",
     run: (args) => {
       const arg = (args[0] ?? "").toLowerCase();
-      const n =
-        arg === "fuck" || arg === "nigga" ? BANNERS.length - 1 : arg ? parseInt(arg, 10) : -1;
+      const n = arg ? parseInt(arg, 10) : -1;
+      if (arg && (!Number.isInteger(n) || n < 0 || n >= VISIBLE_BANNERS)) {
+        return ["usage: logo 0|1|2"];
+      }
       window.dispatchEvent(new CustomEvent("f1cu:logo", { detail: { n } }));
       return ["logo style updated."];
     },
