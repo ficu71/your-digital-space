@@ -9,33 +9,36 @@ import {
   Workflow,
   Cpu,
   Lock,
+  Code2,
+  Zap,
+  Layers,
 } from "lucide-react";
 import { VersionSwitcher } from "@/components/VersionSwitcher";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
+export const Route = createFileRoute("/")({{
+  head: () => ({{
     meta: [
-      { title: "f1cu — Offensive Security & iOS Research" },
-      {
+      { title: "f1cu — Red Team Operator & Security Researcher" },
+      {{
         name: "description",
         content:
-          "Independent offensive security engineer. Red teaming, iOS internals, and automation for teams that need real answers, not checklists.",
-      },
-      { property: "og:title", content: "f1cu — Offensive Security & iOS Research" },
-      {
+          "Solo security researcher & red team operator. Penetration testing, exploit development, offensive tooling, mobile security (iOS jailbreak, Android FRP bypass), CVE research, API security testing.",
+      }},
+      { property: "og:title", content: "f1cu — Red Team Operator & Security Researcher" },
+      {{
         property: "og:description",
         content:
-          "Red teaming, iOS internals, and automation. Independent engineer based in NL.",
-      },
+          "Offensive security engineer. Exploit development, iOS internals, Android security, CVE research, red team automation.",
+      }},
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0a0a0a" },
     ],
-  }),
+  }}),
   component: Index,
-});
+}});
 
-const EMAIL = "look@f1cu.space";
+const EMAIL = "ficu71@proton.me";
 const GITHUB = "https://github.com/ficu71";
 
 function Index() {
@@ -47,8 +50,9 @@ function Index() {
         <Hero />
         <About />
         <Services />
+        <Projects />
         <Stack />
-        <Process />
+        <Expertise />
         <Contact />
       </main>
       <Footer />
@@ -61,20 +65,20 @@ function Nav() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="#top" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-foreground text-background text-xs font-bold">
-            f1
+          <span className="grid h-7 w-7 place-items-center rounded-md bg-red-600 text-background text-xs font-bold">
+            F1
           </span>
           <span>f1cu</span>
         </a>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#about" className="transition-colors hover:text-foreground">About</a>
           <a href="#services" className="transition-colors hover:text-foreground">Services</a>
+          <a href="#projects" className="transition-colors hover:text-foreground">Projects</a>
           <a href="#stack" className="transition-colors hover:text-foreground">Stack</a>
-          <a href="#process" className="transition-colors hover:text-foreground">Process</a>
         </nav>
         <a
           href={`mailto:${EMAIL}`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-4 py-1.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
           Contact
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -88,30 +92,30 @@ function Hero() {
   return (
     <section id="top" className="relative overflow-hidden border-b border-border/60">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-red-600/5 blur-3xl" />
       </div>
       <div className="mx-auto max-w-6xl px-6 py-28 md:py-40">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-3 py-1 text-xs text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Available for new engagements — Q3 2026
+            <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
+            Offensive security engineer
           </div>
           <h1 className="mt-6 text-5xl font-semibold tracking-tight text-foreground md:text-7xl">
-            Security that
+            Exploits,
             <br />
-            <span className="text-muted-foreground">holds up under pressure.</span>
+            <span className="text-red-600">red team ops,</span>
+            <br />
+            <span className="text-muted-foreground">mobile security.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            I&apos;m f1cu — an independent offensive security engineer.
-            I help teams find the failure modes attackers actually use:
-            red team operations, iOS internals research, and hardened automation.
+            I'm f1cu — solo security researcher & red team operator. Penetration testing, exploit development, iOS jailbreak research, Android FRP bypass, CVE analysis, API security testing. Python 3.11+ stack, asyncio-first architecture.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
-              href={`mailto:${EMAIL}?subject=Engagement%20inquiry`}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              href={`mailto:${EMAIL}?subject=Security%20engagement%20inquiry`}
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
             >
-              Start a conversation
+              Start engagement
               <ArrowUpRight className="h-4 w-4" />
             </a>
             <a
@@ -121,16 +125,16 @@ function Hero() {
               className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
             >
               <Github className="h-4 w-4" />
-              View GitHub
+              GitHub
             </a>
           </div>
         </div>
 
         <div className="mt-24 grid grid-cols-2 gap-8 border-t border-border/60 pt-10 md:grid-cols-4">
-          <Stat label="Years in security" value="8+" />
-          <Stat label="Engagements delivered" value="60+" />
-          <Stat label="Repeat clients" value="92%" />
-          <Stat label="Based in" value="Gouda, NL" />
+          <Stat label="CVE discoveries" value="20+" />
+          <Stat label="Red team ops" value="50+" />
+          <Stat label="PoC exploits" value="100+" />
+          <Stat label="Mobile security" value="Specialty" />
         </div>
       </div>
     </section>
@@ -146,19 +150,19 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Section({
+function Section({{
   id,
   eyebrow,
   title,
   intro,
   children,
-}: {
+}}: {{
   id: string;
   eyebrow: string;
   title: string;
   intro?: string;
   children: React.ReactNode;
-}) {
+}}) {{
   return (
     <section id={id} className="border-b border-border/60">
       <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
@@ -177,90 +181,90 @@ function Section({
       </div>
     </section>
   );
-}
+}}
 
 function About() {
   return (
     <Section
       id="about"
       eyebrow="About"
-      title="Independent, quiet, and hands-on."
-      intro="I work best embedded with small security teams that need someone senior on the tools — not another slide deck. My clients are fintechs, mobile-first products, and infra teams that ship."
+      title="Solo operator. Deep technical focus."
+      intro="Security research and offensive operations at scale. No consultancy overhead — direct access to tools, knowledge, and custom exploitation frameworks."
     >
       <div className="grid gap-10 md:grid-cols-3">
         <AboutCard
-          icon={<Shield className="h-5 w-5" />}
-          title="Offensive by default"
-          body="Every finding comes with a working proof of concept and a remediation path your engineers can actually merge."
+          icon={<Code2 className="h-5 w-5" />}
+          title="Exploit development"
+          body="CVE research, PoC creation, weaponization. Custom payloads, staging chains, evasion techniques. Python + C/shellcode integration."
         />
         <AboutCard
           icon={<Smartphone className="h-5 w-5" />}
-          title="Deep iOS focus"
-          body="Years of hands-on iOS internals — sandbox, entitlements, IPC, jailbreak-era research applied to modern app security."
+          title="Mobile security"
+          body="iOS jailbreak era knowledge applied to modern runtime. Sandbox escapes, entitlement abuse, IPC fuzzing. Android FRP bypass, firmware analysis."
         />
         <AboutCard
-          icon={<Workflow className="h-5 w-5" />}
-          title="Automation-first"
-          body="I ship tooling with every engagement so your team keeps the capability after I leave."
+          icon={<Zap className="h-5 w-5" />}
+          title="Red team automation"
+          body="Jebie_w_denko framework. CVE exploits, JWT attacks, OAuth/OIDC vulnerabilities, WAF bypass. Modular, async-first Python tooling."
         />
       </div>
     </Section>
   );
 }
 
-function AboutCard({
+function AboutCard({{
   icon,
   title,
   body,
-}: {
+}}: {{
   icon: React.ReactNode;
   title: string;
   body: string;
-}) {
+}}) {{
   return (
     <div>
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-foreground">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-red-600">
         {icon}
       </div>
       <h3 className="mt-5 text-lg font-semibold text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
-}
+}}
 
 function Services() {
   const services = [
-    {
+    {{
       icon: <Shield className="h-5 w-5" />,
-      title: "Red team & adversary simulation",
-      body: "Objective-based operations against production stacks. Recon, initial access, lateral movement, exfiltration — mapped to MITRE ATT&CK with detection gaps documented for your blue team.",
-      bullets: ["Assumed-breach and full-scope", "Detection engineering handoff", "Executive + technical reporting"],
-    },
-    {
+      title: "Red team operations",
+      body: "Full-scope adversary simulation. Recon, initial access, lateral movement, privilege escalation, exfiltration. MITRE ATT&CK mapped. Detection engineering handoff.",
+      bullets: ["Assumed-breach scenarios", "Multi-stage exploitation", "Post-exploitation tooling"],
+    }},
+    {{
       icon: <Smartphone className="h-5 w-5" />,
-      title: "iOS security research",
-      body: "Application, runtime, and platform-level review of iOS products. Reverse engineering, IPC audit, entitlement hardening, and offline analysis of jailbreak surface.",
-      bullets: ["Static + dynamic app review", "Runtime hooking & Frida tooling", "Jailbreak-era exploit context"],
-    },
-    {
+      title: "Mobile security research",
+      body: "iOS & Android deep-dive. Reverse engineering, runtime hooking with Frida, jailbreak surface analysis, entitlement hardening, sandbox escape research.",
+      bullets: ["Static + dynamic analysis", "IPC audit & fuzzing", "Jailbreak PoC development"],
+    }},
+    {{
       icon: <Workflow className="h-5 w-5" />,
-      title: "Security automation",
-      body: "Custom tooling for teams that outgrew off-the-shelf scanners. CI-integrated checks, agent-based recon, and internal platforms tuned to your stack.",
-      bullets: ["Python + TypeScript delivery", "LLM-assisted triage pipelines", "Owned, documented, handed over"],
-    },
+      title: "Exploit development & automation",
+      body: "Custom PoC creation, weaponized exploits, CI-integrated security tooling. Python 3.11+, asyncio architecture. Delivered as standalone modules — yours to maintain.",
+      bullets: ["CVE weaponization", "Custom payload chains", "Owned automation frameworks"],
+    }},
   ];
 
   return (
     <Section
       id="services"
       eyebrow="Services"
-      title="Three ways I work with teams."
-      intro="Scoped engagements with clear deliverables. No retainer lock-in, no sub-contracting — you work with me directly."
+      title="What I deliver."
+      intro="Fixed-scope engagements. Working code, documented findings, and knowledge transfer. No reselling, no overhead — you work with me directly."
     >
       <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
         {services.map((s) => (
           <div key={s.title} className="flex flex-col gap-5 bg-background p-8">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-foreground text-background">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-600 text-background">
               {s.icon}
             </div>
             <div>
@@ -270,7 +274,7 @@ function Services() {
             <ul className="mt-auto space-y-2 pt-4 text-sm text-muted-foreground">
               {s.bullets.map((b) => (
                 <li key={b} className="flex items-start gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-foreground" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-red-600" />
                   {b}
                 </li>
               ))}
@@ -282,38 +286,113 @@ function Services() {
   );
 }
 
+function Projects() {
+  const projects = [
+    {{
+      name: "Jebie_w_denko",
+      subtitle: "Red team automation framework",
+      description:
+        "Modular exploitation framework. CVE exploits, JWT attacks, OAuth/OIDC vulnerabilities, API security testing, WAF bypass modules. Plugin-based architecture with shared utilities.",
+      tech: ["Python 3.11+", "asyncio", "Modular design"],
+      icon: <Zap className="h-5 w-5" />,
+      link: `${GITHUB}/jebie_w_denko`,
+    }},
+    {{
+      name: "Apple-kombajn",
+      subtitle: "iOS security tooling GUI",
+      description:
+        "PySide6 desktop application for iOS security research. Jailbreak automation, FRP bypass, filesystem access, runtime hooking workflows. Cyberpunk-themed Qt widgets.",
+      tech: ["PySide6", "iOS tools", "Frida integration"],
+      icon: <Smartphone className="h-5 w-5" />,
+      link: `${GITHUB}/apple-kombajn`,
+    }},
+    {{
+      name: "CVE Research & writeups",
+      subtitle: "Active exploitation research",
+      description:
+        "Published PoC exploits, technical writeups, and vulnerability analysis. Focus on zero-day discovery, privilege escalation chains, and mobile platform vulnerabilities.",
+      tech: ["Exploit dev", "Security research", "Technical writing"],
+      icon: <Code2 className="h-5 w-5" />,
+      link: `${GITHUB}?tab=repositories`,
+    }},
+  ];
+
+  return (
+    <Section
+      id="projects"
+      eyebrow="Projects"
+      title="Open source & frameworks."
+      intro="Tools built for red team operations and security research. Production-ready, heavily tested."
+    >
+      <div className="grid gap-6 md:grid-cols-3">
+        {projects.map((p) => (
+          <a
+            key={p.name}
+            href={p.link}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex flex-col gap-5 rounded-2xl border border-border bg-card p-8 transition-all hover:border-red-600/50 hover:bg-card/80"
+          >
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-600/10 text-red-600">
+              {p.icon}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">{p.name}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{p.subtitle}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.description}</p>
+            </div>
+            <div className="mt-auto flex flex-wrap gap-2 pt-4">
+              {p.tech.map((t) => (
+                <span
+                  key={t}
+                  className="inline-block rounded-full border border-border/50 bg-background/50 px-2.5 py-1 text-xs text-muted-foreground"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-1 text-sm font-medium text-red-600 transition-colors group-hover:text-red-500">
+              View <ArrowUpRight className="h-3.5 w-3.5" />
+            </div>
+          </a>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 function Stack() {
   const groups = [
-    {
-      label: "Offensive",
-      items: ["Burp Suite Pro", "Cobalt Strike", "Sliver", "BloodHound", "Nuclei"],
-    },
-    {
-      label: "iOS & mobile",
-      items: ["Frida", "Ghidra", "Hopper", "objection", "class-dump"],
-    },
-    {
-      label: "Automation",
-      items: ["Python", "TypeScript", "FastAPI", "Playwright", "n8n"],
-    },
-    {
-      label: "Infra & cloud",
-      items: ["AWS", "GCP", "Terraform", "Cloudflare", "Docker"],
-    },
+    {{
+      label: "Core",
+      items: ["Python 3.11+", "asyncio", "FastAPI", "httpx", "Frida"],
+    }},
+    {{
+      label: "Exploitation",
+      items: ["Burp Suite Pro", "Cobalt Strike", "Sliver", "Custom payloads", "Shellcode"],
+    }},
+    {{
+      label: "Mobile",
+      items: ["Frida", "Ghidra", "Hopper", "class-dump", "iOS internals"],
+    }},
+    {{
+      label: "Infrastructure",
+      items: ["Docker", "AWS", "Terraform", "Git", "Linux hardening"],
+    }},
   ];
 
   return (
     <Section
       id="stack"
-      eyebrow="Stack"
-      title="Tools I reach for."
-      intro="Chosen because they work in production, not because they trend."
+      eyebrow="Tech Stack"
+      title="Tools & frameworks."
+      intro="Production-battle-tested. Selected for reliability, not trends."
     >
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
         {groups.map((g) => (
           <div key={g.label} className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Cpu className="h-4 w-4 text-muted-foreground" />
+              <Cpu className="h-4 w-4 text-red-600" />
               {g.label}
             </div>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -328,43 +407,47 @@ function Stack() {
   );
 }
 
-function Process() {
-  const steps = [
-    {
-      n: "01",
-      title: "Scope call",
-      body: "30 minutes to understand your risk model, stack, and what a good outcome looks like.",
-    },
-    {
-      n: "02",
-      title: "Proposal",
-      body: "Written scope, timeline, and fixed price within 48 hours. No sales cycle.",
-    },
-    {
-      n: "03",
-      title: "Execution",
-      body: "Weekly written updates. Findings flow into your issue tracker as they land, not at the end.",
-    },
-    {
-      n: "04",
-      title: "Handover",
-      body: "Report, retest, and any tooling built during the engagement — yours to keep and extend.",
-    },
+function Expertise() {
+  const areas = [
+    {{
+      title: "Penetration Testing",
+      items: ["Web/API security", "Infrastructure assessment", "Wireless networks"],
+    }},
+    {{
+      title: "Mobile Security",
+      items: ["iOS jailbreak research", "Android FRP bypass", "Runtime analysis"],
+    }},
+    {{
+      title: "CVE & Exploit Development",
+      items: ["Zero-day research", "PoC weaponization", "Privilege escalation chains"],
+    }},
+    {{
+      title: "Offensive Automation",
+      items: ["Framework development", "CI/CD pipeline security", "Detection evasion"],
+    }},
   ];
 
   return (
     <Section
-      id="process"
-      eyebrow="How we work"
-      title="From first email to signed report."
-      intro="A predictable process so you know what to expect and when."
+      eyebrow="Expertise"
+      id="expertise"
+      title="Specialized knowledge."
     >
-      <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2 lg:grid-cols-4">
-        {steps.map((s) => (
-          <div key={s.n} className="bg-background p-8">
-            <div className="text-sm font-mono text-muted-foreground">{s.n}</div>
-            <h3 className="mt-4 text-lg font-semibold text-foreground">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {areas.map((a) => (
+          <div key={a.title} className="rounded-2xl border border-border bg-card p-6">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Layers className="h-4 w-4 text-red-600" />
+              {a.title}
+            </h3>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              {a.items.map((i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-red-600" />
+                  {i}
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
@@ -383,17 +466,16 @@ function Contact() {
                 Contact
               </div>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-                Have a target in mind?
+                Have a target?
               </h2>
               <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
-                Tell me the objective, the stack, and when you need it done.
-                I&apos;ll come back with a scope and a price.
+                Scope out the engagement. What's the objective, the stack, and the timeline? I'll provide a quote and contract within 24 hours.
               </p>
             </div>
             <div className="flex flex-col gap-3 md:items-end">
               <a
-                href={`mailto:${EMAIL}?subject=Engagement%20inquiry&body=Objective%3A%0AScope%3A%0ATimeline%3A%0ABudget%3A`}
-                className="inline-flex items-center justify-between gap-6 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                href={`mailto:${EMAIL}?subject=Security%20engagement&body=Objective%3A%0AScope%3A%0ATimeline%3A`}
+                className="inline-flex items-center justify-between gap-6 rounded-full bg-red-600 px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
               >
                 <span className="inline-flex items-center gap-2">
                   <Mail className="h-4 w-4" />
@@ -419,15 +501,15 @@ function Contact() {
           <div className="mt-12 grid gap-6 border-t border-border pt-8 text-sm text-muted-foreground md:grid-cols-3">
             <div className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
-              PGP key on request
+              Encrypted comms available
             </div>
             <div className="flex items-center gap-2">
               <Terminal className="h-4 w-4" />
-              Signal / Wire available
+              Direct access to me
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              NDAs signed same day
+              NDAs signed immediately
             </div>
           </div>
         </div>
@@ -440,7 +522,7 @@ function Footer() {
   return (
     <footer className="mx-auto max-w-6xl px-6 py-10">
       <div className="flex flex-col items-start justify-between gap-4 text-sm text-muted-foreground md:flex-row md:items-center">
-        <div>© {new Date().getFullYear()} f1cu.space — Gouda, NL</div>
+        <div>© {new Date().getFullYear()} f1cu — Security researcher & red team operator</div>
         <div className="flex items-center gap-6">
           <a href={`mailto:${EMAIL}`} className="transition-colors hover:text-foreground">
             {EMAIL}

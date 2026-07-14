@@ -1,16 +1,18 @@
-# f1cu.space
+# f1cu.space — Red Team Operator & Security Researcher
 
-Professional personal website and landing page for **f1cu** — an independent offensive security engineer focused on red teaming, iOS internals research, and security automation.
+Professional portfolio for **f1cu** — independent offensive security engineer specializing in red team operations, exploit development, iOS jailbreak research, Android security, and CVE analysis.
 
 ## Overview
 
-This is a single-page business card / portfolio site built to sell services directly. It is designed for clarity, fast loading, and strong calls-to-action:
+This is a high-performance portfolio site showcasing:
 
-- Hero with engagement status and primary CTA
-- Services section: Red Team, iOS Research, Security Automation
+- Red team capabilities and services
+- Open-source frameworks (Jebie_w_denko, Apple-kombajn)
+- Technical expertise areas
+- Direct engagement contact
 - Stack & tooling overview
-- Process from first email to final report
-- Contact section with email and GitHub links
+
+Built for clarity, fast loading, and direct client acquisition.
 
 ## Tech Stack
 
@@ -70,16 +72,31 @@ src/
 └── ...
 ```
 
+## Sections
+
+- **Hero:** Red team operator branding, engagement status, primary CTA
+- **About:** Core specializations (exploit dev, mobile security, red team automation)
+- **Services:** Red team ops, mobile research, exploit development & automation
+- **Projects:** Open-source frameworks (Jebie_w_denko, Apple-kombajn) and active research
+- **Stack:** Technical tooling (Python 3.11+, asyncio, Frida, Burp Suite, Cobalt Strike, etc.)
+- **Expertise:** Specialized knowledge areas (penetration testing, mobile security, CVE development, offensive automation)
+- **Contact:** Direct email for engagement inquiries
+
 ## Deployment
 
-This project is built for static / edge deployment. Lovable publishes it automatically from the connected GitHub repository. You can also build locally and host the `dist/` output on any static host or edge platform.
+Build locally and deploy to any static host:
 
 ```bash
 bun run build
 ```
 
+Output in `dist/` directory ready for production.
+
 ## Contact
 
-- Website: [f1cu.space](https://f1cu.space)
-- Email: [look@f1cu.space](mailto:look@f1cu.space)
+- Email: `ficu71@proton.me`
 - GitHub: [github.com/ficu71](https://github.com/ficu71)
+
+---
+
+Built with TanStack Start, Tailwind CSS, and shadcn/ui.

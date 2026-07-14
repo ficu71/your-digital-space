@@ -24,7 +24,7 @@ function NotFoundComponent() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-red-700"
           >
             Go home
           </Link>
@@ -56,7 +56,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-red-700"
           >
             Try again
           </button>
@@ -77,18 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "f1cu — Offensive Security & iOS Research" },
+      { title: "f1cu — Red Team Operator & Security Researcher" },
       {
         name: "description",
         content:
-          "Independent offensive security engineer. Red teaming, iOS internals, and automation for teams that ship.",
+          "Solo security researcher & red team operator. Penetration testing, exploit development, offensive tooling, mobile security (iOS jailbreak, Android FRP bypass), CVE research, API security testing.",
       },
       { name: "author", content: "f1cu" },
-      { property: "og:title", content: "f1cu — Offensive Security & iOS Research" },
+      { property: "og:title", content: "f1cu — Red Team Operator & Security Researcher" },
       {
         property: "og:description",
         content:
-          "Red teaming, iOS internals, and automation. Independent engineer based in Gouda, NL.",
+          "Offensive security engineer. Exploit development, iOS internals, Android security, CVE research, red team automation.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -98,8 +98,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&display=swap",
-
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;600;700&display=swap",
       },
       {
         rel: "stylesheet",
