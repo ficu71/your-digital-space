@@ -94,7 +94,7 @@ Output in `dist/` directory ready for production.
 
 ## Contact
 
-- Email: `ficu71@proton.me`
+- Email: `look@f1cu.space`
 - GitHub: [github.com/ficu71](https://github.com/ficu71)
 
 ---

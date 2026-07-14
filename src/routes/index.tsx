@@ -38,7 +38,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const EMAIL = "ficu71@proton.me";
+const EMAIL = "look@f1cu.space";
 const GITHUB = "https://github.com/ficu71";
 
 function Index() {
