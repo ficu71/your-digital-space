@@ -109,6 +109,81 @@
   }
 }
 
+@keyframes holo-graphic-dash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes holo-graphic-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes holo-graphic-scan {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(-15px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(15px);
+  }
+}
+
+@keyframes holo-graphic-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes holo-graphic-breathe {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes holo-graphic-ring {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: scale(0.72);
+  }
+  55% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes holo-graphic-bars {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: scaleY(0.38);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scaleY(1);
+  }
+}
+
 .holo-vignette {
   background:
     linear-gradient(
@@ -148,10 +223,114 @@
   animation: holo-status-pulse 2.2s ease-in-out infinite;
 }
 
+.holo-graphic {
+  position: relative;
+  height: 88px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-width: 1px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+.holo-graphic::after {
+  position: absolute;
+  inset: -35% 0 auto;
+  height: 38%;
+  content: "";
+  background: linear-gradient(to bottom, transparent, currentColor 78%, transparent);
+  opacity: 0.055;
+  animation: holo-sweep 4.8s linear infinite;
+}
+
+.holo-graphic--detail {
+  height: 132px;
+  margin-top: 18px;
+}
+
+.holo-graphic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+.holo-graphic__grid {
+  opacity: 0.13;
+}
+
+.holo-graphic__dash {
+  animation: holo-graphic-dash 3.6s linear infinite;
+}
+
+.holo-graphic__orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: holo-graphic-spin 10s linear infinite;
+}
+
+.holo-graphic__scan {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: holo-graphic-scan 2.6s ease-in-out infinite;
+}
+
+.holo-graphic__pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: holo-graphic-pulse 2.2s ease-in-out infinite;
+}
+
+.holo-graphic__face,
+.holo-graphic__radar-shape {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: holo-graphic-breathe 3.4s ease-in-out infinite;
+}
+
+.holo-graphic__pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: holo-graphic-ring 2.8s ease-out infinite;
+}
+
+.holo-graphic__bar {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: holo-graphic-bars 1.8s ease-in-out infinite;
+}
+
+.holo-delay-1 {
+  animation-delay: -0.35s;
+}
+
+.holo-delay-2 {
+  animation-delay: -0.7s;
+}
+
+.holo-delay-3 {
+  animation-delay: -1.05s;
+}
+
+.holo-delay-4 {
+  animation-delay: -1.4s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .holo-scanline::after,
   .holo-panel-in,
-  .holo-pulse-dot {
+  .holo-pulse-dot,
+  .holo-graphic::after,
+  .holo-graphic__dash,
+  .holo-graphic__orbit,
+  .holo-graphic__scan,
+  .holo-graphic__pulse,
+  .holo-graphic__face,
+  .holo-graphic__radar-shape,
+  .holo-graphic__pulse-ring,
+  .holo-graphic__bar {
     animation: none;
   }
 }

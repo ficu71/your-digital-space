@@ -296,6 +296,192 @@ function CenterCore({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
+function PanelGraphic({ panel, detail = false }: { panel: Panel; detail?: boolean }) {
+  const sharedProps = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  return (
+    <div
+      className={`holo-graphic${detail ? " holo-graphic--detail" : ""}`}
+      style={{
+        color: panel.color,
+        borderColor: `${panel.color}35`,
+        backgroundColor: `${panel.color}08`,
+        boxShadow: `inset 0 0 24px ${panel.color}0d`,
+      }}
+      aria-hidden="true"
+    >
+      {panel.id === "about" ? (
+        <svg viewBox="0 0 320 112" role="presentation">
+          <g className="holo-graphic__grid" {...sharedProps} strokeWidth="0.7">
+            <path d="M16 25H304M16 56H304M16 87H304" />
+            <path d="M48 12V100M104 12V100M216 12V100M272 12V100" />
+          </g>
+          <g transform="translate(160 56)" {...sharedProps}>
+            <circle r="37" opacity="0.28" />
+            <circle className="holo-graphic__orbit" r="29" strokeDasharray="9 8" />
+            <circle r="18" opacity="0.55" />
+            <path d="M-48 0H-24M24 0H48M0-48V-24M0 24V48" opacity="0.5" />
+            <path className="holo-graphic__scan" d="M-21 0H21" strokeWidth="1.5" />
+            <path
+              className="holo-graphic__face"
+              d="M-7-2c0-8 3-13 7-13s7 5 7 13c0 6-3 10-7 10s-7-4-7-10Zm-12 20c4-8 10-12 19-12s15 4 19 12"
+              strokeWidth="1.4"
+            />
+          </g>
+          <polyline
+            className="holo-graphic__dash"
+            points="18,89 43,89 51,78 62,98 75,71 87,89 111,89"
+            {...sharedProps}
+            strokeWidth="1.4"
+            strokeDasharray="5 4"
+          />
+          <g fill="currentColor" opacity="0.78">
+            <circle className="holo-graphic__pulse" cx="24" cy="22" r="2.5" />
+            <text x="31" y="25" fontSize="7" letterSpacing="1.4">
+              BIO-ID // VERIFIED
+            </text>
+            <text x="235" y="90" fontSize="7" letterSpacing="1.2">
+              NL-EU / 08+
+            </text>
+          </g>
+        </svg>
+      ) : null}
+
+      {panel.id === "skills" ? (
+        <svg viewBox="0 0 320 112" role="presentation">
+          <g transform="translate(160 56)" {...sharedProps}>
+            <polygon points="0,-43 41,-13 25,35 -25,35 -41,-13" opacity="0.22" />
+            <polygon points="0,-29 28,-9 17,24 -17,24 -28,-9" opacity="0.28" />
+            <path d="M0 0V-43M0 0 41-13M0 0 25 35M0 0-25 35M0 0-41-13" opacity="0.3" />
+            <polygon
+              className="holo-graphic__radar-shape"
+              points="0,-36 32,-10 19,27 -20,29 -34,-11"
+              fill="currentColor"
+              fillOpacity="0.12"
+              strokeWidth="1.6"
+            />
+            <g className="holo-graphic__orbit">
+              <path d="M0-47A47 47 0 0 1 45 15" strokeDasharray="13 8" strokeWidth="1.3" />
+              <circle cx="45" cy="15" r="2.4" fill="currentColor" />
+            </g>
+          </g>
+          <g fill="currentColor" fontSize="6.5" letterSpacing="1" opacity="0.72">
+            <text x="148" y="8">
+              OPS
+            </text>
+            <text x="254" y="46">
+              CLOUD
+            </text>
+            <text x="214" y="106">
+              AUTO
+            </text>
+            <text x="67" y="106">
+              MOBILE
+            </text>
+            <text x="17" y="46">
+              IDENTITY
+            </text>
+          </g>
+          <g fill="currentColor">
+            <circle className="holo-graphic__pulse" cx="160" cy="20" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-1" cx="192" cy="46" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-2" cx="179" cy="83" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-3" cx="140" cy="85" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-4" cx="126" cy="45" r="3" />
+          </g>
+        </svg>
+      ) : null}
+
+      {panel.id === "projects" ? (
+        <svg viewBox="0 0 320 112" role="presentation">
+          <g className="holo-graphic__grid" {...sharedProps} strokeWidth="0.7">
+            <path d="M18 24H302M18 56H302M18 88H302" />
+            <path d="M70 12V100M160 12V100M250 12V100" />
+          </g>
+          <g {...sharedProps} strokeWidth="1.2">
+            <path
+              className="holo-graphic__dash"
+              d="M32 78 91 31 160 57 225 25 289 68"
+              strokeDasharray="7 5"
+            />
+            <path
+              className="holo-graphic__dash holo-delay-2"
+              d="M32 78 119 91 160 57 244 91 289 68"
+              strokeDasharray="4 7"
+              opacity="0.55"
+            />
+          </g>
+          <g fill="#030812" stroke="currentColor" strokeWidth="1.3">
+            <rect x="22" y="68" width="20" height="20" />
+            <rect x="81" y="21" width="20" height="20" />
+            <rect x="148" y="45" width="24" height="24" />
+            <rect x="215" y="15" width="20" height="20" />
+            <rect x="279" y="58" width="20" height="20" />
+          </g>
+          <g fill="currentColor">
+            <circle className="holo-graphic__pulse" cx="32" cy="78" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-1" cx="91" cy="31" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-2" cx="160" cy="57" r="4" />
+            <circle className="holo-graphic__pulse holo-delay-3" cx="225" cy="25" r="3" />
+            <circle className="holo-graphic__pulse holo-delay-4" cx="289" cy="68" r="3" />
+          </g>
+          <g fill="currentColor" fontSize="6.5" letterSpacing="1.2" opacity="0.76">
+            <text x="21" y="102">
+              RECON
+            </text>
+            <text x="136" y="92">
+              CONTROL
+            </text>
+            <text x="259" y="102">
+              REPORT
+            </text>
+          </g>
+        </svg>
+      ) : null}
+
+      {panel.id === "contact" ? (
+        <svg viewBox="0 0 320 112" role="presentation">
+          <g transform="translate(106 56)" {...sharedProps}>
+            <circle r="10" strokeWidth="1.6" />
+            <circle className="holo-graphic__pulse-ring" r="23" opacity="0.65" />
+            <circle className="holo-graphic__pulse-ring holo-delay-2" r="37" opacity="0.32" />
+            <path
+              className="holo-graphic__orbit"
+              d="M-42 0A42 42 0 0 1 0-42"
+              strokeDasharray="8 6"
+            />
+            <circle className="holo-graphic__pulse" r="4" fill="currentColor" />
+          </g>
+          <g {...sharedProps} strokeWidth="1.4">
+            <path className="holo-graphic__dash" d="M148 56H298" strokeDasharray="8 6" />
+            <path d="m175 38 12 18-12 18M205 38l12 18-12 18" opacity="0.48" />
+          </g>
+          <g fill="currentColor">
+            <rect className="holo-graphic__bar" x="242" y="76" width="6" height="12" />
+            <rect className="holo-graphic__bar holo-delay-1" x="253" y="67" width="6" height="21" />
+            <rect className="holo-graphic__bar holo-delay-2" x="264" y="57" width="6" height="31" />
+            <rect className="holo-graphic__bar holo-delay-3" x="275" y="45" width="6" height="43" />
+            <circle className="holo-graphic__pulse" cx="298" cy="56" r="3" />
+          </g>
+          <g fill="currentColor" fontSize="7" letterSpacing="1.2" opacity="0.78">
+            <text x="18" y="18">
+              ENCRYPTED UPLINK
+            </text>
+            <text x="236" y="101">
+              LINK // 100%
+            </text>
+          </g>
+        </svg>
+      ) : null}
+    </div>
+  );
+}
+
 function HoloPanel({
   panel,
   active,
@@ -350,7 +536,7 @@ function HoloPanel({
         onClick={handleSelect}
       >
         <mesh position={[0, 0, -0.075]}>
-          <planeGeometry args={[2.55, 1.65]} />
+          <planeGeometry args={[2.82, 2.08]} />
           <meshBasicMaterial
             ref={glow}
             color={panel.color}
@@ -360,7 +546,7 @@ function HoloPanel({
           />
         </mesh>
         <mesh>
-          <planeGeometry args={[2.3, 1.45]} />
+          <planeGeometry args={[2.56, 1.84]} />
           <meshStandardMaterial
             color="#030812"
             emissive={panel.color}
@@ -372,10 +558,10 @@ function HoloPanel({
           />
         </mesh>
         <lineSegments position={[0, 0, 0.01]}>
-          <edgesGeometry args={[new THREE.PlaneGeometry(2.3, 1.45)]} />
+          <edgesGeometry args={[new THREE.PlaneGeometry(2.56, 1.84)]} />
           <lineBasicMaterial color={panel.color} transparent opacity={active ? 1 : 0.62} />
         </lineSegments>
-        <mesh position={[-1.05, 0.62, 0.025]}>
+        <mesh position={[-1.16, 0.81, 0.025]}>
           <circleGeometry args={[0.035, 16]} />
           <meshBasicMaterial color={panel.color} />
         </mesh>
@@ -388,8 +574,8 @@ function HoloPanel({
         >
           <div
             style={{
-              width: 360,
-              padding: "20px 24px",
+              width: 382,
+              padding: "16px 22px",
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               color: "#dff7ff",
               textShadow: `0 0 10px ${panel.color}55`,
@@ -413,7 +599,7 @@ function HoloPanel({
             </div>
             <div
               style={{
-                marginTop: 12,
+                marginTop: 8,
                 fontSize: 18,
                 fontWeight: 700,
                 letterSpacing: -0.3,
@@ -422,11 +608,12 @@ function HoloPanel({
             >
               {panel.title}
             </div>
+            <PanelGraphic panel={panel} />
             <div
               style={{
-                marginTop: 8,
-                fontSize: 11,
-                lineHeight: 1.55,
+                marginTop: 7,
+                fontSize: 10,
+                lineHeight: 1.45,
                 color: "#a8c1ce",
               }}
             >
@@ -434,8 +621,8 @@ function HoloPanel({
             </div>
             <div
               style={{
-                marginTop: 13,
-                paddingTop: 9,
+                marginTop: 9,
+                paddingTop: 7,
                 borderTop: `1px solid ${panel.color}44`,
                 color: panel.color,
                 fontSize: 9,
@@ -632,6 +819,8 @@ function DetailPanel({ panel, onClose }: { panel: Panel; onClose: () => void }) 
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
+
+      <PanelGraphic panel={panel} detail />
 
       <div
         className="mt-5 grid grid-cols-3 gap-px border"
