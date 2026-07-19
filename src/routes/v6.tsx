@@ -5,6 +5,7 @@ import Home from "@/features/v6/Home";
 import "@/features/v6/v6.css";
 
 export const Route = createFileRoute("/v6")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "f1cu // holo mesh — v6" },

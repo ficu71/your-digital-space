@@ -9,6 +9,7 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { VersionSwitcher } from "@/components/VersionSwitcher";
 
 export const Route = createFileRoute("/v4")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "f1cu // holo control room — v4" },
