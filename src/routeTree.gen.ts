@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as V6RouteImport } from './routes/v6'
 import { Route as V4RouteImport } from './routes/v4'
 import { Route as IndexRouteImport } from './routes/index'
 
+const V6Route = V6RouteImport.update({
+  id: '/v6',
+  path: '/v6',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const V4Route = V4RouteImport.update({
   id: '/v4',
   path: '/v4',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/v4': typeof V4Route
+  '/v6': typeof V6Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/v4': typeof V4Route
+  '/v6': typeof V6Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/v4': typeof V4Route
+  '/v6': typeof V6Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/v4'
+  fullPaths: '/' | '/v4' | '/v6'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/v4'
-  id: '__root__' | '/' | '/v4'
+  to: '/' | '/v4' | '/v6'
+  id: '__root__' | '/' | '/v4' | '/v6'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   V4Route: typeof V4Route
+  V6Route: typeof V6Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/v6': {
+      id: '/v6'
+      path: '/v6'
+      fullPath: '/v6'
+      preLoaderRoute: typeof V6RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v4': {
       id: '/v4'
       path: '/v4'
@@ -71,17 +88,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   V4Route: V4Route,
+  V6Route: V6Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

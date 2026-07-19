@@ -1,58 +1,62 @@
-# Plan: 4 alternatywne wersje strony f1cu
+## Co myślę
 
-Obecna strona (`/`) pozostaje bez zmian. Dodaję cztery osobne trasy, każda z innym kierunkiem wizualnym.
+Solidna robota — to jest znacznie lepsze niż obecne `/v4` (proste holo panele) i `/v5` (neural sphere). Konkretnie:
 
-## Nowe trasy
+- **4 holo-panele w 3D** z `<Html transform>` (prawdziwy tekst w scenie, nie sprity) — czytelne i klikalne
+- **Rdzeń** z wireframe icosahedron + 3 orbitami + pulsującym inner mesh
+- **Bezier-linki** rdzeń→panele z animowanymi pulse-kulami i dashOffset
+- **CameraRig** z auto-rotacją w stanie idle i płynnym lerp do wybranego węzła, blokada OrbitControls przy focusie
+- **HUD**: Boot sequence, Header, Navigator (klawisze 1–4), Telemetry, Hint, DetailOverlay z blokami (text/kv/stats/feature/chips/project/actions/ticks)
+- **Postprocessing**: Bloom + Scanline + Noise + Vignette + Sparkles + Grid + Fog — spójny cyber-holo look
+- Treść (`content.ts`) już dopasowana pod Ciebie: Gouda NL, jebie_w_denko, apple-kombajn, bunq, CVE stats
 
-### `/v2` — Terminal Brutalist
-- Pełnoekranowy interaktywny terminal (fake shell).
-- Komendy: `whoami`, `skills`, `projects`, `contact`, `help`, `clear`.
-- Monospace (JetBrains Mono), zielony fosfor na czarnym, migający kursor, scanlines CSS.
-- Typewriter effect przy bootowaniu, historia komend (strzałki góra/dół).
-- Brak zewnętrznej biblioteki — czysty React state.
+Minusy do ogarnięcia przy porcie:
+- Projekt zakłada Tailwind v3 + osobne `index.css`, my mamy Tailwind v4 (`@theme` w `styles.css`) — trzeba przenieść tylko klasy niebędące pluginowe, resztę do naszej konwencji
+- Używa React Router (`pages/Home.tsx`) — u nas TanStack Start, więc opakowujemy w `createFileRoute` + `<ClientOnly>` (r3f = tylko klient)
+- Deps: `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`, `three`, `zustand` — do dodania (postprocessing i zustand na razie nie ma)
 
-### `/v3` — Interaktywny SVG (network graph)
-- Główna sekcja: interaktywny SVG przedstawiający graf węzłów (red team, iOS, automation, OSINT, tooling) połączonych liniami z centralnym węzłem "f1cu".
-- Hover na węźle → podświetlenie połączeń + panel z opisem obszaru.
-- Drag węzłów (prosta symulacja sił w useEffect, bez d3), animowane linie (SVG `<animate>` na `stroke-dashoffset`).
-- Tło: siatka SVG, akcent cyjan `#22d3ee` na ciemnym `#0a0f1a`.
-- Space Grotesk do UI, JetBrains Mono do etykiet.
+## Plan portu (nowa trasa `/v6`, `/v4` i `/v5` bez zmian)
 
-### `/v4` — Editorial / Magazine
-- Layout inspirowany magazynem: asymetryczna siatka 12 kolumn, duża typografia serif (Fraunces) mieszana z mono.
-- Sekcje jako "artykuły": numerowane (01 — Red Team, 02 — iOS Research, 03 — Automation).
-- Tło kość słoniowa `#f5f1ea`, tekst grafit `#1a1a1a`, akcent karmazyn `#8b1e2b`.
-- Sticky boczny spis treści, subtelne parallax na scrollu (CSS only).
-
-### `/v5` — Cyberpunk Neon Glass
-- Glassmorphism na ciemnym gradiencie (fioletowy → cyjan), animowane blob'y w tle.
-- Hero z warstwowymi kartami szkła, glow shadows, mikroanimacje na hover.
-- Space Grotesk + JetBrains Mono, akcenty magenta `#ff2e88` i cyjan `#00f0ff`.
-- Sekcje: hero, capabilities grid (6 kart glass), CTA.
-
-## Nawigacja
-- Dodaję dyskretny "version switcher" w prawym górnym rogu KAŻDEJ z 5 wersji (linki `v1 · v2 · v3 · v4 · v5`), żeby łatwo przełączać podczas oglądania.
-- Aktywna wersja podświetlona.
-
-## Zmiany techniczne
+### Nowe pliki
 
 ```text
-src/routes/
-  index.tsx          (bez zmian — v1)
-  v2.tsx             (nowa — terminal)
-  v3.tsx             (nowa — SVG graph)
-  v4.tsx             (nowa — editorial)
-  v5.tsx             (nowa — cyber glass)
-src/components/
-  VersionSwitcher.tsx (nowy — wspólny)
+src/routes/v6.tsx                  # createFileRoute + head() + ClientOnly<Home>
+src/features/v6/Home.tsx           # port pages/Home.tsx
+src/features/v6/state/store.ts     # zustand store (focused, booted, compact, toggle, select, setCompact)
+src/features/v6/data/content.ts    # NODES + typy (1:1 z zipa, z Twoim contentem)
+src/features/v6/scene/Experience.tsx
+src/features/v6/scene/Core.tsx
+src/features/v6/scene/HoloPanel.tsx
+src/features/v6/scene/Links.tsx
+src/features/v6/scene/CameraRig.tsx
+src/features/v6/hud/Boot.tsx
+src/features/v6/hud/Header.tsx
+src/features/v6/hud/Navigator.tsx
+src/features/v6/hud/Telemetry.tsx
+src/features/v6/hud/Hint.tsx
+src/features/v6/hud/DetailOverlay.tsx
+src/features/v6/v6.css             # style HUD/holo (klasy .holo-panel, .hp-*, .ov-*, .core-label, .stage)
 ```
 
-- Każda trasa ma własne `head()` z unikalnym `title` / `description` / `og:title` / `og:description`.
-- Fonty: `bun add @fontsource/fraunces` (dla v4). JetBrains Mono i Space Grotesk już są.
-- Tokeny kolorów per-wersja definiowane lokalnie w komponencie (inline style vars) — żeby nie zaburzać globalnego motywu v1.
-- Zero zmian w `src/routes/index.tsx`, `src/routes/__root.tsx` (poza ewentualnym importem fontu, jeśli konieczne globalnie — inaczej import w pliku wersji).
+### Zmiany istniejące
 
-## Poza zakresem
-- Nie dotykam obecnej wersji `/`.
-- Bez backendu, bez Cloud — czysty frontend.
-- Bez ciężkich bibliotek (d3, three.js) — wszystko na natywnym React + SVG + CSS.
+- `src/routes/v6.tsx` importuje `v6.css` (scoped-side-effect import)
+- `src/components/VersionSwitcher.tsx` — dopisać `v6` do listy linków (v1..v6)
+- `package.json` — `bun add @react-three/postprocessing zustand` (fiber/drei/three już są od /v4-/v5)
+
+### Detale techniczne
+
+- Cała scena zapakowana w `<ClientOnly>` — r3f + WebGL nie może iść przez SSR (nasz prerender by się wysypał). `/v6` będzie miał minimalny placeholder w SSR, hydracja klienta doładowuje scenę.
+- `head()` unikalne: title "f1cu // holo mesh", opis o interaktywnej wizytówce 3D, `og:title/og:description/twitter:card`. Bez `og:image` (brak sensownego cover).
+- Tailwind v4 nie ma pluginu `tailwindcss-animate` z zipa — nie potrzebne, style z `index.css` (holo-panel, boot, overlay) portujemy jako czysty CSS do `v6.css`.
+- Klawisze `1–4` przełączają panele, `Esc` zamyka — jak w oryginale.
+- Compact mode (mobile ≤768px) przesuwa kamerę dalej i zmniejsza panele — bez zmian względem oryginału.
+- WebGL context-lost handler z Experience zostaje (auto-reload po 800ms).
+
+### Poza zakresem
+
+- `/v4` i `/v5` zostają nietknięte
+- Nie ruszam `/`, `/v2`, `/v3`, `__root.tsx` (poza ewentualnym niczym)
+- Bez backendu, bez Cloud
+
+Jak dam radę pchnąć — powiedz "buduj" i lecę.
