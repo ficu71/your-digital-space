@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as V7RouteImport } from './routes/v7'
 import { Route as V6RouteImport } from './routes/v6'
 import { Route as V4RouteImport } from './routes/v4'
 import { Route as IndexRouteImport } from './routes/index'
 
+const V7Route = V7RouteImport.update({
+  id: '/v7',
+  path: '/v7',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const V6Route = V6RouteImport.update({
   id: '/v6',
   path: '/v6',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/v4': typeof V4Route
   '/v6': typeof V6Route
+  '/v7': typeof V7Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/v4': typeof V4Route
   '/v6': typeof V6Route
+  '/v7': typeof V7Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/v4': typeof V4Route
   '/v6': typeof V6Route
+  '/v7': typeof V7Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/v4' | '/v6'
+  fullPaths: '/' | '/v4' | '/v6' | '/v7'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/v4' | '/v6'
-  id: '__root__' | '/' | '/v4' | '/v6'
+  to: '/' | '/v4' | '/v6' | '/v7'
+  id: '__root__' | '/' | '/v4' | '/v6' | '/v7'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   V4Route: typeof V4Route
   V6Route: typeof V6Route
+  V7Route: typeof V7Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/v7': {
+      id: '/v7'
+      path: '/v7'
+      fullPath: '/v7'
+      preLoaderRoute: typeof V7RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v6': {
       id: '/v6'
       path: '/v6'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   V4Route: V4Route,
   V6Route: V6Route,
+  V7Route: V7Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
