@@ -137,6 +137,14 @@ function Hero() {
               <Github className="h-4 w-4" />
               GitHub
             </a>
+            <Link
+              to="/v7"
+              className="group inline-flex items-center gap-2 rounded-full border border-red-600/40 px-5 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-600/10"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+              enter the lab
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
           </div>
         </div>
 
