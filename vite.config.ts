@@ -13,11 +13,14 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // GitHub Pages only serves static files, so generate HTML for every static route.
+    // GitHub Pages only serves static files. The 3D routes (/v4, /v6, ...) render
+    // client-side inside <ClientOnly>, so we skip prerender crawling and only
+    // emit HTML for the root route.
     prerender: {
       enabled: true,
-      crawlLinks: true,
-      failOnError: true,
+      crawlLinks: false,
+      failOnError: false,
+      routes: ["/"],
     },
   },
 });
