@@ -1,10 +1,10 @@
 export const CONTENT = {
   brand: "F1CU.SPACE",
   tagline: "breaks the limits — unleashes the truth.",
-  location: "warsaw · en / pl",
+  location: "netherlands · nl/ en / pl",
   email: "look@f1cu.space",
   github: "https://github.com/ficu71",
-  signal: "@f1cu.42",
+  signal: "@f1cu.71",
   availability: "open for Q4 2026",
   capabilities: [
     {
