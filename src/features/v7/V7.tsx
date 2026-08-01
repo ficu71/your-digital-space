@@ -104,7 +104,7 @@ function Hero() {
       <div className="v7-hud-corner tl" />
       <div className="v7-hud-corner tr" />
       <div className="v7-reveal" style={{ maxWidth: "56rem" }}>
-        <span className="v7-eyebrow">f1cu.space · v7 · liquid chrome cathedral</span>
+        <span className="v7-eyebrow">f1cu.space</span>
         <h1 className="v7-display v7-hero-title">
           breaks the limits.<br />unleashes the truth.
         </h1>
@@ -320,8 +320,8 @@ function Contact() {
 function Signoff() {
   return (
     <footer className="v7-signoff">
-      <span>handcrafted in warsaw</span>
-      <span>v7.0.0 · liquid chrome cathedral</span>
+      <span>handcrafted in your mind</span>
+      <span>vf1</span>
       <span>press ? for shortcuts</span>
     </footer>
   );
