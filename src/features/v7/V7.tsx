@@ -268,7 +268,7 @@ function Telemetry() {
         </div>
         <div className="v7-tel v7-reveal">
           <div className="v7-tel-label">location · languages</div>
-          <div className="v7-tel-value" style={{ fontSize: "1.4rem" }}>warsaw / pl</div>
+          <div className="v7-tel-value" style={{ fontSize: "1.4rem" }}>  nl / pl</div>
           <div className="v7-tel-sub">english · polish</div>
         </div>
         <div className="v7-log v7-reveal">
