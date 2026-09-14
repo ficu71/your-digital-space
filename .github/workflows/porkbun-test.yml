@@ -1,0 +1,20 @@
+name: Porkbun API test
+on: [push]
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test DNS retrieve
+        run: |
+          curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/retrieve/f1cu.space" -H "Content-Type: application/json" -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}' > test-result.json
+          cat test-result.json
+      - name: Save result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add test-result.json
+          git commit -m "test: Porkbun API response" || echo "nothing to commit"
+          git push || echo "nothing to push"
