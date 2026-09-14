@@ -1,41 +1,50 @@
-name: Debug DNS
+name: Setup www redirect
 on: [push, workflow_dispatch]
 jobs:
-  debug:
+  fix:
     runs-on: ubuntu-latest
     steps:
-      - name: Retrieve all DNS records
-        run: |
-          curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
-            -H "Content-Type: application/json" \
-            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
-      - name: Retrieve URL forwarding rules
+      - name: Check existing URL forwarding
         run: |
           curl -s -X POST https://api.porkbun.com/api/v3/domain/forwarding/get/f1cu.space \
             -H "Content-Type: application/json" \
             -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
-      - name: Force delete ALL www records and recreate
+      - name: Delete all existing forwards for www
+        run: |
+          RESP=$(curl -s -X POST https://api.porkbun.com/api/v3/domain/forwarding/get/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}')
+          echo "$RESP"
+          for id in $(echo "$RESP" | jq -r '.forwarding[]? | select(.subdomain=="www" or .subdomain=="") | .id // empty' 2>/dev/null); do
+            echo "Deleting forward $id"
+            curl -s -X POST "https://api.porkbun.com/api/v3/domain/forwarding/delete/f1cu.space/$id" \
+              -H "Content-Type: application/json" \
+              -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
+          done
+      - name: Delete www CNAME records (Porkbun auto-recreates if forwarding is off)
         run: |
           RESP=$(curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
             -H "Content-Type: application/json" \
             -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}')
-          echo "$RESP"
-          # Delete ALL records named www (CNAME, A, AAAA, anything)
           for id in $(echo "$RESP" | jq -r '.records[]? | select(.name=="www") | .id'); do
-            echo "Deleting record $id"
+            echo "Deleting www record $id"
             curl -s -X POST "https://api.porkbun.com/api/v3/dns/delete/f1cu.space/$id" \
               -H "Content-Type: application/json" \
               -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
           done
-          # Now create A records for www
-          for ip in 185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153; do
-            echo "Creating A record www -> $ip"
-            curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
-              -H "Content-Type: application/json" \
-              -d "{\"apikey\":\"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc\",\"secretapikey\":\"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4\",\"type\":\"A\",\"name\":\"www\",\"content\":\"$ip\",\"ttl\":\"600\"}"
-          done
-      - name: Verify
+      - name: Create CNAME www -> ficu71.github.io (now without forwarding interference)
         run: |
+          curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4","type":"CNAME","name":"www","content":"ficu71.github.io","ttl":"600"}'
+      - name: Verify final state
+        run: |
+          echo "=== DNS ==="
           curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
+          echo ""
+          echo "=== Forwarding ==="
+          curl -s -X POST https://api.porkbun.com/api/v3/domain/forwarding/get/f1cu.space \
             -H "Content-Type: application/json" \
             -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
