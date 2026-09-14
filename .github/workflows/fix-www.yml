@@ -1,62 +1,67 @@
-name: Setup www redirect via URL301 record
+name: Debug www DNS fix
 on: [push, workflow_dispatch]
 permissions:
   contents: write
 jobs:
-  fix:
+  debug:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Delete all www records (CNAME, A, URL, URL301, etc)
-        run: |
-          RESP=$(curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
-            -H "Content-Type: application/json" \
-            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}')
-          echo "$RESP" | tee dns-before.json
-          for id in $(echo "$RESP" | jq -r '.records[]? | select(.name=="www") | .id'); do
-            echo "Deleting www record $id (type: $(echo "$RESP" | jq -r ".records[] | select(.id==$id) | .type"))"
-            curl -s -X POST "https://api.porkbun.com/api/v3/dns/delete/f1cu.space/$id" \
-              -H "Content-Type: application/json" \
-              -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}'
-          done
-      - name: Create URL301 record www -> f1cu.space
-        run: |
-          echo "Trying URL301 record type..."
-          curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
-            -H "Content-Type: application/json" \
-            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4","type":"URL301","name":"www","content":"https://f1cu.space","ttl":"600"}' | tee url301-result.json
-      - name: If URL301 failed, try CNAME
-        run: |
-          STATUS=$(jq -r '.status' url301-result.json 2>/dev/null)
-          if [ "$STATUS" != "SUCCESS" ]; then
-            echo "URL301 failed, trying CNAME to ficu71.github.io"
-            curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
-              -H "Content-Type: application/json" \
-              -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4","type":"CNAME","name":"www","content":"ficu71.github.io","ttl":"600"}' | tee cname-result.json
-          fi
-      - name: Verify final DNS
+      - name: Step 1 - Get all DNS records
+        continue-on-error: true
         run: |
           curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
             -H "Content-Type: application/json" \
-            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}' | tee dns-after.json
-      - name: Save all outputs
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}' > step1-dns-retrieve.json
+          cat step1-dns-retrieve.json
+      - name: Step 2 - Delete ALL www records
+        continue-on-error: true
         run: |
-          echo "=== DNS BEFORE ===" > dns-debug-output.txt
-          cat dns-before.json >> dns-debug-output.txt
-          echo "" >> dns-debug-output.txt
-          echo "=== URL301 RESULT ===" >> dns-debug-output.txt
-          cat url301-result.json >> dns-debug-output.txt
-          echo "" >> dns-debug-output.txt
-          echo "=== CNAME RESULT ===" >> dns-debug-output.txt
-          cat cname-result.json 2>/dev/null >> dns-debug-output.txt || echo "not used" >> dns-debug-output.txt
-          echo "" >> dns-debug-output.txt
-          echo "=== DNS AFTER ===" >> dns-debug-output.txt
-          cat dns-after.json >> dns-debug-output.txt
+          for id in $(jq -r '.records[]? | select(.name=="www") | .id' step1-dns-retrieve.json 2>/dev/null); do
+            echo "Deleting www record $id"
+            curl -s -X POST "https://api.porkbun.com/api/v3/dns/delete/f1cu.space/$id" \
+              -H "Content-Type: application/json" \
+              -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}' > "step2-delete-$id.json"
+            cat "step2-delete-$id.json"
+          done
+      - name: Step 3 - Try URL301 record
+        continue-on-error: true
+        run: |
+          curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4","type":"URL301","name":"www","content":"https://f1cu.space","ttl":"600"}' > step3-url301.json
+          cat step3-url301.json
+      - name: Step 4 - Try CNAME record
+        continue-on-error: true
+        run: |
+          curl -s -X POST https://api.porkbun.com/api/v3/dns/create/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4","type":"CNAME","name":"www","content":"ficu71.github.io","ttl":"600"}' > step4-cname.json
+          cat step4-cname.json
+      - name: Step 5 - Final DNS state
+        continue-on-error: true
+        run: |
+          curl -s -X POST https://api.porkbun.com/api/v3/dns/retrieve/f1cu.space \
+            -H "Content-Type: application/json" \
+            -d '{"apikey":"pk1_8f6ce37bb9f16b9585f6a8fc12bb18d6ca0b6acdb305f0cccc56b9b0fc75fc","secretapikey":"sk1_3bfb3aa9e89a8bbaab893b3fa7117242528410f05ae935e8ba202e655f504ff4"}' > step5-final-dns.json
+          cat step5-final-dns.json
+      - name: Save all results
+        run: |
+          echo "=== STEP 1: DNS BEFORE ===" > dns-debug-output.txt
+          cat step1-dns-retrieve.json >> dns-debug-output.txt
+          echo -e "\n\n=== STEP 2: DELETE RESULTS ===" >> dns-debug-output.txt
+          cat step2-delete-*.json 2>/dev/null >> dns-debug-output.txt || echo "no deletions" >> dns-debug-output.txt
+          echo -e "\n\n=== STEP 3: URL301 RESULT ===" >> dns-debug-output.txt
+          cat step3-url301.json >> dns-debug-output.txt
+          echo -e "\n\n=== STEP 4: CNAME RESULT ===" >> dns-debug-output.txt
+          cat step4-cname.json >> dns-debug-output.txt
+          echo -e "\n\n=== STEP 5: DNS AFTER ===" >> dns-debug-output.txt
+          cat step5-final-dns.json >> dns-debug-output.txt
       - name: Commit debug output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dns-debug-output.txt
-          git commit -m "debug: save Porkbun API responses (URL301 attempt)" || echo "nothing to commit"
+          git commit -m "debug: full Porkbun API response dump for www fix" || echo "nothing to commit"
           git push || echo "nothing to push"
