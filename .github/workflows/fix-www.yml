@@ -1,0 +1,89 @@
+name: Fix www DNS
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'DNS action to perform'
+        required: true
+        default: 'fix-www'
+        type: choice
+        options:
+          - fix-www
+          - list-records
+
+permissions:
+  contents: read
+
+jobs:
+  fix-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List current DNS records
+        run: |
+          echo "=== Retrieving current DNS records ==="
+          RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/retrieve/f1cu.space" \
+            -H "Content-Type: application/json" \
+            -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\"}")
+          echo "$RESPONSE"
+          
+          if echo "$RESPONSE" | jq -e '.status == "SUCCESS"' > /dev/null 2>&1; then
+            echo "=== www records ==="
+            echo "$RESPONSE" | jq '.records[] | select(.name == "www")'
+          else
+            echo "API call failed. Check your API keys and ensure API access is enabled for f1cu.space in Porkbun."
+            exit 1
+          fi
+        env:
+          PORKBUN_API_KEY: ${{ secrets.PORKBUN_API_KEY }}
+          PORKBUN_SECRET_KEY: ${{ secrets.PORKBUN_SECRET_KEY }}
+
+      - name: Delete existing www CNAME records
+        run: |
+          echo "=== Deleting existing www CNAME records ==="
+          RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/retrieve/f1cu.space" \
+            -H "Content-Type: application/json" \
+            -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\"}")
+          
+          for id in $(echo "$RESPONSE" | jq -r '.records[]? | select(.name == "www") | .id'); do
+            echo "Deleting www record id: $id"
+            DEL_RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/delete/f1cu.space/$id" \
+              -H "Content-Type: application/json" \
+              -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\"}")
+            echo "$DEL_RESPONSE"
+          done
+        env:
+          PORKBUN_API_KEY: ${{ secrets.PORKBUN_API_KEY }}
+          PORKBUN_SECRET_KEY: ${{ secrets.PORKBUN_SECRET_KEY }}
+
+      - name: Create www CNAME to GitHub Pages
+        run: |
+          echo "=== Creating www CNAME -> ficu71.github.io ==="
+          RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/create/f1cu.space" \
+            -H "Content-Type: application/json" \
+            -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\",\"type\":\"CNAME\",\"name\":\"www\",\"content\":\"ficu71.github.io\",\"ttl\":\"600\"}")
+          echo "$RESPONSE"
+          
+          if echo "$RESPONSE" | jq -e '.status == "SUCCESS"' > /dev/null 2>&1; then
+            echo "CNAME created successfully!"
+          else
+            echo "CNAME creation failed. Trying URL301 redirect as fallback..."
+            REDIRECT_RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/create/f1cu.space" \
+              -H "Content-Type: application/json" \
+              -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\",\"type\":\"URL301\",\"name\":\"www\",\"content\":\"https://f1cu.space\",\"ttl\":\"600\"}")
+            echo "$REDIRECT_RESPONSE"
+          fi
+        env:
+          PORKBUN_API_KEY: ${{ secrets.PORKBUN_API_KEY }}
+          PORKBUN_SECRET_KEY: ${{ secrets.PORKBUN_SECRET_KEY }}
+
+      - name: Verify final DNS state
+        run: |
+          echo "=== Final DNS records ==="
+          sleep 5
+          RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/dns/retrieve/f1cu.space" \
+            -H "Content-Type: application/json" \
+            -d "{\"apikey\":\"$PORKBUN_API_KEY\",\"secretapikey\":\"$PORKBUN_SECRET_KEY\"}")
+          echo "$RESPONSE" | jq '.records[] | select(.name == "www")'
+        env:
+          PORKBUN_API_KEY: ${{ secrets.PORKBUN_API_KEY }}
+          PORKBUN_SECRET_KEY: ${{ secrets.PORKBUN_SECRET_KEY }}
