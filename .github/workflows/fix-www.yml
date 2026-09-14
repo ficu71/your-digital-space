@@ -1,8 +1,5 @@
 name: Fix www CNAME
-on:
-  push:
-    paths: ['.github/workflows/fix-www.yml']
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 jobs:
   fix:
     runs-on: ubuntu-latest
