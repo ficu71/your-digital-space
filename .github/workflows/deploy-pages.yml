@@ -30,6 +30,9 @@ jobs:
           GITHUB_PAGES: "true"
         run: bun run build
 
+      - name: SPA fallback for client-side /vN routes
+        run: cp dist/client/index.html dist/client/404.html
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
