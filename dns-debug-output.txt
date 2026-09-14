@@ -1,3 +1,4 @@
+=== STEP 1: DNS BEFORE ===
 <html>
 <head><title>404 Not Found</title></head>
 <body>
@@ -5,6 +6,33 @@
 <hr><center>openresty</center>
 </body>
 </html>
+
+
+=== STEP 2: DELETE RESULTS ===
+no deletions
+
+
+=== STEP 3: URL301 RESULT ===
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>openresty</center>
+</body>
+</html>
+
+
+=== STEP 4: CNAME RESULT ===
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>openresty</center>
+</body>
+</html>
+
+
+=== STEP 5: DNS AFTER ===
 <html>
 <head><title>404 Not Found</title></head>
 <body>
